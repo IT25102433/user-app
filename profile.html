@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="box">
+    <h2>Profile</h2>
+
+    <input type="text" id="profileName">
+    <input type="email" id="profileEmail" disabled>
+    <input type="password" id="profilePassword" placeholder="New Password">
+    <input type="text" id="profileDepartment">
+
+    <button onclick="loadProfile()">Load Profile</button>
+    <button onclick="updateProfile()">Update</button>
+    <button onclick="logoutUser()">Logout</button>
+
+    <p id="profileMsg"></p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+</body>
+</html>
