@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Exam</title>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/exam.css">
+</head>
+<body>
+    <header class="exam-header">
+        <div class="exam-title">Computer Science Final</div>
+        <div class="timer" id="timerDisplay">Time Left: 60:00</div>
+    </header>
+    <main class="exam-container">
+        <form id="examForm">
+            <div class="question-block">
+                <p><strong>1. What is polymorphism?</strong></p>
+                <label><input type="radio" name="q1" value="A"> A. Multiple forms</label><br>
+                <label><input type="radio" name="q1" value="B"> B. Data hiding</label><br>
+            </div>
+            <br>
+            <button type="button" onclick="submitExam()">Submit Exam</button>
+        </form>
+    </main>
+    <script src="../../assets/js/exam-live.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Start Exam</title>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/student.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Final Examination: Computer Science</h1>
+        <div class="instructions">
+            <h3>Instructions</h3>
+            <ul>
+                <li>You have 60 minutes to complete this exam.</li>
+                <li>The timer will start as soon as you click "Start Exam".</li>
+            </ul>
+        </div>
+        <button id="startExamBtn" onclick="startExam()">Start Exam</button>
+    </div>
+    <script src="../../assets/js/exam-live.js"></script>
+</body>
+</html>
