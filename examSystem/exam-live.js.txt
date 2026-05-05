@@ -1,0 +1,29 @@
+function startExam() {
+    sessionStorage.setItem(examStarted, true);
+    window.location.href = exam-interface.html;
+}
+function startTimer(durationInMinutes) {
+    let timeRemaining = durationInMinutes  60; 
+    const timerDisplay = document.getElementById('timerDisplay');
+    if (!timerDisplay) return; 
+    const interval = setInterval(() = {
+        let minutes = Math.floor(timeRemaining  60);
+        let seconds = timeRemaining % 60;
+        minutes = minutes  10  0 + minutes  minutes;
+        seconds = seconds  10  0 + seconds  seconds;
+        timerDisplay.textContent = `Time Left ${minutes}${seconds}`;
+        if (timeRemaining = 0) {
+            clearInterval(interval);
+            alert(Time is up! Auto-submitting your exam.);
+            submitExam(); 
+        }
+        timeRemaining--;
+    }, 1000);
+}
+function submitExam() {
+    console.log(Exam submitted!);
+    window.location.href = submit-exam.html;
+}
+if (window.location.pathname.includes('exam-interface.html')) {
+    startTimer(60); 
+}
