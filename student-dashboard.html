@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard — Exam System</title>
+  <link rel="stylesheet" href="assets/css/exam.css">
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">E</div>
+      <h2>ExamSystem</h2>
+    </div>
+
+    <div class="sidebar-section">Results</div>
+    <a href="teacher-grading.html">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      Grading Panel
+    </a>
+    <a href="student-dashboard.html" class="active">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+      Student View
+    </a>
+  </div>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-title">Student Results Dashboard</div>
+    <div class="topbar-right">
+      <a href="student-login.html" id="logoutBtn" style="text-decoration: none; color: #ef4444; font-size: 14px; margin-right: 16px; font-weight: 500;">Logout</a>
+      <div class="avatar">S</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">View My Results</div>
+      </div>
+      <div id="studentAlert" class="alert"></div>
+      
+      <div class="form-grid" style="grid-template-columns: 1fr auto;">
+        <div class="form-group">
+          <label for="studentIdInput">Student ID</label>
+          <input type="text" id="studentIdInput" placeholder="e.g. STU-001">
+        </div>
+        <div class="form-actions" style="margin-top:24px; padding-top:0; border-top:0;">
+          <button id="loadStudentResultsBtn" class="btn btn-primary">View Results</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Student Results Table -->
+    <div class="card" style="margin-top:24px">
+      <div class="card-header">
+        <div class="card-title">Published Grades</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Exam ID</th>
+              <th>Total Score</th>
+              <th>Feedback</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="studentTableBody">
+            <tr><td colspan="4" style="color:var(--text-muted); padding:18px 16px;">Enter your Student ID to view your results.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/results.js"></script>
+</body>
+</html>
