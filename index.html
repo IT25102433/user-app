@@ -1,23 +1,26 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-<div class="box">
-    <h2>Login</h2>
-
-    <input type="email" id="loginEmail" placeholder="Email">
-    <input type="password" id="loginPassword" placeholder="Password">
-
-    <button onclick="loginUser()">Login</button>
-    <p id="loginMsg"></p>
-
-    <a href="register.html">Create Account</a>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js"></script>
-</body>
-</html>
+!-- frontendpagesindex.html --
+!DOCTYPE html
+html lang=en
+head
+    meta charset=UTF-8
+    meta name=viewport content=width=device-width, initial-scale=1.0
+    titleOnline Examination Systemtitle
+    !-- Linking your Global CSS --
+    link rel=stylesheet href=..assetscssstyle.css
+head
+body
+    header
+        div class=container style=display flex; justify-content space-between; align-items center; padding 20px 0;
+            h1ExamSystemh1
+            nav
+                a href=authlogin.html class=btnLogina
+                a href=authregister.html class=btn style=background-color var(--secondary-color);Registera
+            nav
+        div
+    header
+    main class=container style=text-align center; margin-top 50px;
+        h2Welcome to the Online Assessment Platformh2
+        p style=color var(--text-muted); margin-top 10px;A secure environment for students and teachers.p
+    main
+body
+html
