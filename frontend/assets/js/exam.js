@@ -43,6 +43,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (modal) modal.style.display = "none";
   }
 
+  function toDateInputValue(value) {
+    if (!value) return "";
+    const str = String(value);
+    if (str.includes("T")) return str.split("T")[0];
+    return str;
+  }
+
   function showConfirmDialog(message, onConfirm) {
     const overlay = document.createElement("div");
     overlay.className = "modal-overlay";
@@ -149,8 +156,8 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("newDuration").value = ex.durationMinutes ?? "";
             const marksEl = document.getElementById("newMarks");
             if (marksEl) marksEl.value = ex.totalMarks ?? "";
-            const statusEl = document.getElementById("newStatus");
-            if (statusEl) statusEl.value = ex.status || "Pending";
+            const examDateEl = document.getElementById("newExamDate");
+            if (examDateEl) examDateEl.value = toDateInputValue(ex.examDate);
             openEditModal();
           } catch (err) {
             showAlert("editAlert", err.message || "Failed to load exam.", "error");
@@ -221,9 +228,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const durationMinutes = Number(document.getElementById("newDuration").value);
       const totalMarksRaw = document.getElementById("newMarks")?.value;
       const totalMarks = totalMarksRaw !== "" ? Number(totalMarksRaw) : undefined;
-      const status = document.getElementById("newStatus")?.value?.trim();
+      const examDate = document.getElementById("newExamDate")?.value?.trim() || "";
 
-      if (!examId || !durationMinutes) {
+      if (!examId || !durationMinutes || !examDate) {
         showAlert("editAlert", "Please fill in all required fields.", "error");
         return;
       }
@@ -234,7 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify({
             durationMinutes,
             ...(totalMarks === undefined ? {} : { totalMarks }),
-            ...(status ? { status } : {}),
+            examDate,
           }),
         });
         showAlert("editAlert", `Exam "${examId}" updated successfully!`, "success");
@@ -449,8 +456,8 @@ document.addEventListener("DOMContentLoaded", () => {
           document.getElementById("newDuration").value = ex.durationMinutes ?? "";
           const marksEl = document.getElementById("newMarks");
           if (marksEl) marksEl.value = ex.totalMarks ?? "";
-          const statusEl = document.getElementById("newStatus");
-          if (statusEl) statusEl.value = ex.status || "Pending";
+          const examDateEl = document.getElementById("newExamDate");
+          if (examDateEl) examDateEl.value = toDateInputValue(ex.examDate);
           openEditModal();
         } catch (err) {
           showAlert("editAlert", err.message || "Failed to load exam.", "error");
