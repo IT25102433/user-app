@@ -268,6 +268,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const questionForm = document.getElementById("questionForm");
   if (questionForm) {
+    let currentQuestions = [];
     const questionType = document.getElementById("questionType");
     const mcqFields = document.getElementById("mcqFields");
     const shortFields = document.getElementById("shortFields");
@@ -275,6 +276,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const subjectFilter = document.getElementById("subjectFilter");
     const applyFilter = document.getElementById("applyFilter");
     const clearFilter = document.getElementById("clearFilter");
+    const downloadQuestions = document.getElementById("downloadQuestions");
     const cards = document.getElementById("questionCards");
     const empty = document.getElementById("questionEmpty");
 
@@ -310,6 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         const query = subjectCode ? `?subjectCode=${encodeURIComponent(subjectCode)}` : "";
         const list = await apiJson(`/questions${query}`);
+        currentQuestions = Array.isArray(list) ? list : [];
         if (!Array.isArray(list) || list.length === 0) {
           cards.innerHTML = "";
           empty.style.display = "block";
@@ -342,10 +345,80 @@ document.addEventListener("DOMContentLoaded", () => {
           )
           .join("");
       } catch (err) {
+        currentQuestions = [];
         cards.innerHTML = "";
         empty.style.display = "block";
         showAlert("questionAlert", err.message || "Failed to load questions.", "error");
       }
+    }
+
+    function csvCell(value) {
+      const raw = value == null ? "" : String(value);
+      return `"${raw.replaceAll('"', '""')}"`;
+    }
+
+    function downloadQuestionsCsv() {
+      if (!Array.isArray(currentQuestions) || currentQuestions.length === 0) {
+        showAlert("questionAlert", "No questions available to download.", "error");
+        return;
+      }
+
+      const header = [
+        "Question Code",
+        "Subject Code",
+        "Type",
+        "Marks",
+        "Exam ID",
+        "Question Text",
+        "Options",
+        "Correct Option",
+        "Expected Answer",
+      ];
+
+      const rows = currentQuestions.map((q) => {
+        let optionsText = "";
+        let correctOptionText = "";
+        if (q.type === "MCQ") {
+          try {
+            const opts = q.optionsJson ? JSON.parse(q.optionsJson) : [];
+            if (Array.isArray(opts)) {
+              optionsText = opts.join(" | ");
+              if (typeof q.correctIndex === "number" && q.correctIndex >= 0 && q.correctIndex < opts.length) {
+                correctOptionText = opts[q.correctIndex];
+              }
+            }
+          } catch {}
+        }
+
+        return [
+          q.questionCode || "",
+          q.subjectCode || "",
+          q.type || "",
+          q.marks ?? "",
+          q.examId || "",
+          q.text || "",
+          optionsText,
+          correctOptionText,
+          q.type === "SHORT" ? q.expectedAnswer || "" : "",
+        ];
+      });
+
+      const csv = [header, ...rows]
+        .map((row) => row.map(csvCell).join(","))
+        .join("\n");
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const filter = subjectFilter?.value?.trim();
+      const suffix = filter ? `-${filter}` : "-all";
+      a.href = url;
+      a.download = `questions${suffix}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showAlert("questionAlert", "Questions downloaded successfully.", "success");
     }
 
     questionType.addEventListener("change", toggleQuestionType);
@@ -361,6 +434,9 @@ document.addEventListener("DOMContentLoaded", () => {
       subjectFilter.value = "";
       renderQuestions("");
     });
+    if (downloadQuestions) {
+      downloadQuestions.addEventListener("click", downloadQuestionsCsv);
+    }
 
     cards.addEventListener("click", async (e) => {
       const btn = e.target?.closest?.("button[data-question-id]");

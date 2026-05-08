@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "exams")
 public class ExamEntity {
@@ -27,9 +29,8 @@ public class ExamEntity {
     @Column(name = "total_marks", nullable = false)
     private int totalMarks;
 
-    @NotBlank
-    @Column(name = "status", length = 16, nullable = false)
-    private String status = "Draft";
+    @Column(name = "exam_date")
+    private LocalDate examDate;
 
     @Min(0)
     @Column(name = "grace_minutes", nullable = false)
@@ -42,12 +43,12 @@ public class ExamEntity {
 
     public ExamEntity() {}
 
-    public ExamEntity(String examId, String subjectCode, int durationMinutes, int totalMarks, String status, int graceMinutes, int passCriteriaPercent) {
+    public ExamEntity(String examId, String subjectCode, int durationMinutes, int totalMarks, LocalDate examDate, int graceMinutes, int passCriteriaPercent) {
         this.examId = examId;
         this.subjectCode = subjectCode;
         this.durationMinutes = durationMinutes;
         this.totalMarks = totalMarks;
-        this.status = status == null || status.isBlank() ? "Draft" : status;
+        this.examDate = examDate;
         this.graceMinutes = Math.max(0, graceMinutes);
         this.passCriteriaPercent = Math.max(0, Math.min(100, passCriteriaPercent));
     }
@@ -84,12 +85,12 @@ public class ExamEntity {
         this.totalMarks = totalMarks;
     }
 
-    public String getStatus() {
-        return status;
+    public LocalDate getExamDate() {
+        return examDate;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setExamDate(LocalDate examDate) {
+        this.examDate = examDate;
     }
 
     public int getGraceMinutes() {

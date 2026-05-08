@@ -20,10 +20,17 @@ public class ExamManagementService {
         if (exams.existsById(req.examId())) {
             throw new IllegalArgumentException("Exam already exists: " + req.examId());
         }
-        var status = (req.status() == null || req.status().isBlank()) ? "Draft" : req.status().trim();
         var grace = req.graceMinutes() == null ? 10 : Math.max(0, req.graceMinutes());
         var passCriteria = req.passCriteriaPercent() == null ? 40 : Math.max(0, Math.min(100, req.passCriteriaPercent()));
-        var entity = new ExamEntity(req.examId().trim(), req.subjectCode().trim(), req.durationMinutes(), req.totalMarks(), status, grace, passCriteria);
+        var entity = new ExamEntity(
+                req.examId().trim(),
+                req.subjectCode().trim(),
+                req.durationMinutes(),
+                req.totalMarks(),
+                req.examDate(),
+                grace,
+                passCriteria
+        );
         return exams.save(entity);
     }
 
@@ -42,7 +49,7 @@ public class ExamManagementService {
         if (req.passCriteriaPercent() != null) entity.setPassCriteriaPercent(Math.max(0, Math.min(100, req.passCriteriaPercent())));
         if (req.durationMinutes() != null) entity.setDurationMinutes(req.durationMinutes());
         if (req.totalMarks() != null) entity.setTotalMarks(req.totalMarks());
-        if (req.status() != null && !req.status().isBlank()) entity.setStatus(req.status().trim());
+        if (req.examDate() != null) entity.setExamDate(req.examDate());
         return exams.save(entity);
     }
 
