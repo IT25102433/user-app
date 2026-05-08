@@ -28,14 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return await res.json();
   }
 
-  function badgeForStatus(status) {
-    const s = (status || "Pending").toLowerCase();
-    if (s === "done") return "badge badge-green";
-    if (s === "pending") return "badge badge-amber";
-    if (s === "cancel") return "badge badge-red";
-    return "badge badge-gray";
-  }
-
   const sidebarLinks = document.querySelectorAll(".sidebar a");
   sidebarLinks.forEach((link) => {
     if (link.href === window.location.href) link.classList.add("active");
@@ -105,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <td>${escapeHtml(e.subjectCode || "")}</td>
             <td>${escapeHtml(String(e.durationMinutes ?? ""))} min</td>
             <td>${escapeHtml(String(e.totalMarks ?? 0))}</td>
-            <td><span class="${badgeForStatus(e.status)}">${escapeHtml(e.status || "Pending")}</span></td>
+            <td>${escapeHtml(e.examDate || "—")}</td>
             <td>
               <button class="btn btn-outline btn-sm" data-action="pick">Edit</button>
               <button class="btn btn-danger btn-sm" style="margin-left:6px" data-action="delete">Delete</button>
@@ -183,9 +175,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const durationMinutes = Number(document.getElementById("duration").value);
       const totalMarks = Number(document.getElementById("totalMarks")?.value || 0) || 0;
       const passCriteriaPercent = Number(document.getElementById("passMark")?.value || 0);
-      const status = document.getElementById("examStatus")?.value || "Pending";
+      const examDate = document.getElementById("examDate")?.value?.trim() || "";
 
-      if (!examId || !subjectCode || !durationMinutes) {
+      if (!examId || !subjectCode || !durationMinutes || !examDate) {
         showAlert("createAlert", "Please fill in all required fields.", "error");
         return;
       }
@@ -199,12 +191,11 @@ document.addEventListener("DOMContentLoaded", () => {
             durationMinutes,
             totalMarks,
             passCriteriaPercent,
-            status,
+            examDate,
           }),
         });
         showAlert("createAlert", `Exam "${examId}" created successfully!`, "success");
         createForm.reset();
-        document.getElementById("examStatus").value = "Pending";
         await renderExamTable();
       } catch (err) {
         showAlert("createAlert", err.message || "Failed to create exam.", "error");
