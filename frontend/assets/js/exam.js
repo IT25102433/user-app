@@ -352,73 +352,95 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    function csvCell(value) {
-      const raw = value == null ? "" : String(value);
-      return `"${raw.replaceAll('"', '""')}"`;
-    }
-
-    function downloadQuestionsCsv() {
+    function downloadQuestionsPdf() {
       if (!Array.isArray(currentQuestions) || currentQuestions.length === 0) {
         showAlert("questionAlert", "No questions available to download.", "error");
         return;
       }
 
-      const header = [
-        "Question Code",
-        "Subject Code",
-        "Type",
-        "Marks",
-        "Exam ID",
-        "Question Text",
-        "Options",
-        "Correct Option",
-        "Expected Answer",
-      ];
+      const jsPdfLib = window.jspdf?.jsPDF;
+      if (!jsPdfLib) {
+        showAlert("questionAlert", "PDF library not loaded. Refresh and try again.", "error");
+        return;
+      }
 
-      const rows = currentQuestions.map((q) => {
-        let optionsText = "";
-        let correctOptionText = "";
+      const doc = new jsPdfLib({ unit: "pt", format: "a4" });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 40;
+      const maxTextWidth = pageWidth - margin * 2;
+      let y = margin;
+
+      const ensureSpace = (needed = 20) => {
+        if (y + needed > pageHeight - margin) {
+          doc.addPage();
+          y = margin;
+        }
+      };
+
+      const addWrappedLine = (label, value) => {
+        const line = `${label}: ${value || "—"}`;
+        const lines = doc.splitTextToSize(line, maxTextWidth);
+        ensureSpace(lines.length * 16);
+        doc.text(lines, margin, y);
+        y += lines.length * 16;
+      };
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text("Question Bank Export", margin, y);
+      y += 24;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+      const filter = subjectFilter?.value?.trim();
+      addWrappedLine("Filter", filter || "All Subjects");
+      addWrappedLine("Total Questions", String(currentQuestions.length));
+      y += 8;
+
+      currentQuestions.forEach((q, index) => {
+        ensureSpace(40);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(12);
+        doc.text(`${index + 1}. ${q.questionCode || "Question"}`, margin, y);
+        y += 18;
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(11);
+        addWrappedLine("Subject", q.subjectCode || "");
+        addWrappedLine("Type", q.type || "");
+        addWrappedLine("Marks", String(q.marks ?? ""));
+        addWrappedLine("Exam ID", q.examId || "");
+        addWrappedLine("Question", q.text || "");
+
         if (q.type === "MCQ") {
+          let optionsText = "";
+          let answerText = "";
           try {
             const opts = q.optionsJson ? JSON.parse(q.optionsJson) : [];
             if (Array.isArray(opts)) {
-              optionsText = opts.join(" | ");
+              optionsText = opts.map((opt, i) => `${i + 1}) ${opt}`).join(" | ");
               if (typeof q.correctIndex === "number" && q.correctIndex >= 0 && q.correctIndex < opts.length) {
-                correctOptionText = opts[q.correctIndex];
+                answerText = `${q.correctIndex + 1}) ${opts[q.correctIndex]}`;
               }
             }
           } catch {}
+          addWrappedLine("Options", optionsText);
+          addWrappedLine("Correct", answerText);
+        } else {
+          addWrappedLine("Expected Answer", q.expectedAnswer || "");
         }
 
-        return [
-          q.questionCode || "",
-          q.subjectCode || "",
-          q.type || "",
-          q.marks ?? "",
-          q.examId || "",
-          q.text || "",
-          optionsText,
-          correctOptionText,
-          q.type === "SHORT" ? q.expectedAnswer || "" : "",
-        ];
+        y += 10;
+        ensureSpace(16);
+        doc.setDrawColor(220);
+        doc.line(margin, y, pageWidth - margin, y);
+        y += 16;
       });
 
-      const csv = [header, ...rows]
-        .map((row) => row.map(csvCell).join(","))
-        .join("\n");
-
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      const filter = subjectFilter?.value?.trim();
       const suffix = filter ? `-${filter}` : "-all";
-      a.href = url;
-      a.download = `questions${suffix}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      showAlert("questionAlert", "Questions downloaded successfully.", "success");
+      doc.save(`questions${suffix}.pdf`);
+      showAlert("questionAlert", "Questions PDF downloaded successfully.", "success");
     }
 
     questionType.addEventListener("change", toggleQuestionType);
@@ -435,7 +457,7 @@ document.addEventListener("DOMContentLoaded", () => {
       renderQuestions("");
     });
     if (downloadQuestions) {
-      downloadQuestions.addEventListener("click", downloadQuestionsCsv);
+      downloadQuestions.addEventListener("click", downloadQuestionsPdf);
     }
 
     cards.addEventListener("click", async (e) => {
