@@ -25,6 +25,7 @@ public class ApiExceptionHandler {
         e.getBindingResult().getFieldErrors().forEach(fe -> fields.put(fe.getField(), fe.getDefaultMessage()));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                 "error", "validation_error",
+                "message", "Validation failed; check required fields (e.g. examDate).",
                 "fields", fields
         ));
     }

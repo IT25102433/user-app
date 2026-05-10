@@ -7,6 +7,7 @@ import com.examSystem.repo.ExamRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ExamManagementService {
@@ -17,6 +18,7 @@ public class ExamManagementService {
     }
 
     public ExamEntity create(CreateExamRequest req) {
+        Objects.requireNonNull(req.examDate(), "examDate is required");
         if (exams.existsById(req.examId())) {
             throw new IllegalArgumentException("Exam already exists: " + req.examId());
         }

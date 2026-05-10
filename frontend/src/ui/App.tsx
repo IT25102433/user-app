@@ -5,10 +5,17 @@ type Exam = {
   subjectCode: string;
   durationMinutes: number;
   totalMarks: number;
-  status: string;
+  examDate?: string | null;
   graceMinutes?: number;
   passCriteriaPercent?: number;
 };
+
+function toDateInputValue(value: string | null | undefined): string {
+  if (value == null || value === "") return "";
+  const s = String(value);
+  if (s.includes("T")) return s.split("T")[0]!;
+  return s.length >= 10 ? s.slice(0, 10) : s;
+}
 
 type Question = {
   id: number;
@@ -184,13 +191,6 @@ export function App() {
   );
 }
 
-function StatusBadge(props: { status: string }) {
-  const normalized = (props.status || "").trim().toLowerCase();
-  const kind =
-    normalized === "active" ? "active" : normalized === "pending" ? "pending" : normalized === "closed" ? "closed" : "draft";
-  return <span className={`statusBadge ${kind}`}>{props.status || "Draft"}</span>;
-}
-
 function ExamsTable(props: { exams: Exam[]; onRefresh: () => void }) {
   const [examIdFilter, setExamIdFilter] = useState("");
   const [subjectCodeFilter, setSubjectCodeFilter] = useState("");
@@ -218,22 +218,20 @@ function ExamsTable(props: { exams: Exam[]; onRefresh: () => void }) {
         <div className="thead">
           <div>Exam ID</div>
           <div>Subject</div>
+          <div>Exam date</div>
           <div>Duration</div>
           <div>Grace</div>
           <div>Total</div>
-          <div>Status</div>
         </div>
 
         {filteredExams.map((e) => (
           <div key={e.examId} className="tr">
             <div style={{ fontWeight: 900 }}>{e.examId}</div>
             <div>{e.subjectCode}</div>
+            <div>{toDateInputValue(e.examDate ?? "") || "—"}</div>
             <div>{e.durationMinutes} min</div>
             <div>{(e.graceMinutes ?? 10).toString()} min</div>
             <div>{e.totalMarks}</div>
-            <div>
-              <StatusBadge status={e.status} />
-            </div>
           </div>
         ))}
 
@@ -250,10 +248,10 @@ function ExamsTable(props: { exams: Exam[]; onRefresh: () => void }) {
 function CreateExam(props: { onCreated: () => void; onError: (msg: string) => void }) {
   const [examId, setExamId] = useState("");
   const [subjectCode, setSubjectCode] = useState("");
+  const [examDate, setExamDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [durationMinutes, setDurationMinutes] = useState(60);
   const [passCriteriaPercent, setPassCriteriaPercent] = useState(40);
   const [totalMarks, setTotalMarks] = useState(0);
-  const [status, setStatus] = useState("Draft");
   const [busy, setBusy] = useState(false);
 
   return (
@@ -262,6 +260,7 @@ function CreateExam(props: { onCreated: () => void; onError: (msg: string) => vo
       <div className="grid">
         <Field label="Exam ID" value={examId} onChange={setExamId} placeholder="EXAM-001" />
         <Field label="Subject Code" value={subjectCode} onChange={setSubjectCode} placeholder="CS301" />
+        <Field label="Exam date" type="date" value={examDate} onChange={setExamDate} />
         <Field label="Duration (minutes)" type="number" value={String(durationMinutes)} onChange={(v) => setDurationMinutes(Number(v))} />
         <Field
           label="Pass Criteria (%)"
@@ -270,12 +269,6 @@ function CreateExam(props: { onCreated: () => void; onError: (msg: string) => vo
           onChange={(v) => setPassCriteriaPercent(Number(v))}
         />
         <Field label="Total Marks" type="number" value={String(totalMarks)} onChange={(v) => setTotalMarks(Number(v))} />
-        <Select
-          label="Status"
-          value={status}
-          onChange={setStatus}
-          options={["Draft", "Active", "Pending", "Closed"]}
-        />
       </div>
       <div className="actions">
         <button
@@ -283,18 +276,26 @@ function CreateExam(props: { onCreated: () => void; onError: (msg: string) => vo
           disabled={busy}
           onClick={async () => {
             if (!examId.trim() || !subjectCode.trim()) return props.onError("Exam ID and Subject Code are required.");
+            if (!examDate.trim()) return props.onError("Exam date is required.");
             setBusy(true);
             try {
               await apiJson("/exams", {
                 method: "POST",
-                body: JSON.stringify({ examId, subjectCode, durationMinutes, passCriteriaPercent, totalMarks, status }),
+                body: JSON.stringify({
+                  examId,
+                  subjectCode,
+                  examDate,
+                  durationMinutes,
+                  passCriteriaPercent,
+                  totalMarks,
+                }),
               });
               setExamId("");
               setSubjectCode("");
+              setExamDate(new Date().toISOString().slice(0, 10));
               setDurationMinutes(60);
               setPassCriteriaPercent(40);
               setTotalMarks(0);
-              setStatus("Draft");
               props.onCreated();
             } catch (e: any) {
               props.onError(e.message);
@@ -319,10 +320,10 @@ function EditExam(props: {
   const [editingId, setEditingId] = useState<string | null>(null);
   const editingExam = props.exams.find((e) => e.examId === editingId) || null;
   const [subjectCode, setSubjectCode] = useState<string>("");
+  const [examDate, setExamDate] = useState<string>("");
   const [graceMinutes, setGraceMinutes] = useState<number>(10);
   const [durationMinutes, setDurationMinutes] = useState<number>(60);
   const [totalMarks, setTotalMarks] = useState<number>(0);
-  const [status, setStatus] = useState<string>("Draft");
   const [busy, setBusy] = useState(false);
   const [deletingExam, setDeletingExam] = useState<Exam | null>(null);
   const [examIdFilter, setExamIdFilter] = useState("");
@@ -337,10 +338,10 @@ function EditExam(props: {
   useEffect(() => {
     if (!editingExam) return;
     setSubjectCode(editingExam.subjectCode);
+    setExamDate(toDateInputValue(editingExam.examDate ?? ""));
     setGraceMinutes(editingExam.graceMinutes ?? 10);
     setDurationMinutes(editingExam.durationMinutes);
     setTotalMarks(editingExam.totalMarks);
-    setStatus(editingExam.status);
   }, [editingExam?.examId]);
 
   return (
@@ -355,10 +356,10 @@ function EditExam(props: {
         <div className="thead">
           <div>Exam ID</div>
           <div>Subject</div>
+          <div>Exam date</div>
           <div>Duration</div>
           <div>Grace</div>
           <div>Total</div>
-          <div>Status</div>
           <div>Actions</div>
         </div>
 
@@ -366,12 +367,10 @@ function EditExam(props: {
           <div key={e.examId} className="tr">
             <div style={{ fontWeight: 900 }}>{e.examId}</div>
             <div>{e.subjectCode}</div>
+            <div>{toDateInputValue(e.examDate ?? "") || "—"}</div>
             <div>{e.durationMinutes} min</div>
             <div>{(e.graceMinutes ?? 10).toString()} min</div>
             <div>{e.totalMarks}</div>
-            <div>
-              <StatusBadge status={e.status} />
-            </div>
             <div className="row" style={{ gap: 8, justifyContent: "flex-end" }}>
               <button className="btn small" disabled={busy} onClick={() => setEditingId(e.examId)}>
                 Edit
@@ -420,6 +419,7 @@ function EditExam(props: {
 
             <div className="grid" style={{ marginTop: 12 }}>
               <Field label="Subject Code" value={subjectCode} onChange={setSubjectCode} placeholder="CS301" />
+              <Field label="Exam date" type="date" value={examDate} onChange={setExamDate} />
               <Field
                 label="Grace Period (minutes)"
                 type="number"
@@ -433,7 +433,6 @@ function EditExam(props: {
                 onChange={(v) => setDurationMinutes(Number(v))}
               />
               <Field label="Total Marks" type="number" value={String(totalMarks)} onChange={(v) => setTotalMarks(Number(v))} />
-              <Select label="Status" value={status} onChange={setStatus} options={["Draft", "Active", "Pending", "Closed"]} />
             </div>
 
             <div className="actions">
@@ -441,11 +440,15 @@ function EditExam(props: {
                 className="btn primary"
                 disabled={busy}
                 onClick={async () => {
+                  if (!examDate.trim()) {
+                    props.onError("Exam date is required.");
+                    return;
+                  }
                   setBusy(true);
                   try {
                     await apiJson(`/exams/${encodeURIComponent(editingExam.examId)}`, {
                       method: "PUT",
-                      body: JSON.stringify({ subjectCode, graceMinutes, durationMinutes, totalMarks, status }),
+                      body: JSON.stringify({ subjectCode, examDate, graceMinutes, durationMinutes, totalMarks }),
                     });
                     setEditingId(null);
                     props.onChanged();
