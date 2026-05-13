@@ -1,27 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Profile</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile — Exam System</title>
+  <link rel="stylesheet" href="frontend/assets/css/auth.css">
 </head>
 <body>
-<div class="box">
-    <h2>Profile</h2>
+  <div class="auth-card">
+    <h1>Profile</h1>
+    <p class="subtitle">Logged-in user (from localStorage).</p>
 
-    <input type="email" id="profileEmail" placeholder="Email" disabled>
-    <input type="password" id="currentPassword" placeholder="Current Password">
-    <input type="password" id="newPassword" placeholder="New Password">
-    <input type="password" id="confirmPassword" placeholder="Confirm Password">
+    <label for="profileEmail">Email</label>
+    <input type="email" id="profileEmail" disabled>
 
-    <button onclick="loadProfile()">Load Profile</button>
-    <button onclick="updateProfile()">Update Password</button>
-    <button onclick="deleteMyAccount()">Delete My Account</button>
-    <button onclick="logoutUser()">Logout</button>
+    <label for="profileRole">Role</label>
+    <input type="text" id="profileRole" disabled>
 
-    <p id="profileMsg"></p>
-</div>
+    <p id="profileMsg" class="msg"></p>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js"></script>
+    <div class="profile-actions">
+      <button type="button" onclick="loadProfile()">Refresh</button>
+      <button type="button" class="secondary" onclick="logoutUser()">Logout</button>
+    </div>
+
+    <div class="links">
+      <a href="index.html">Back to login</a>
+    </div>
+  </div>
+  <script src="frontend/assets/js/auth.js"></script>
 </body>
 </html>

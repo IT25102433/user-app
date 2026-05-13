@@ -1,23 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Login</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Exam System</title>
+  <link rel="stylesheet" href="frontend/assets/css/auth.css">
 </head>
 <body>
-<div class="box">
-    <h2>Login</h2>
+  <div class="auth-card">
+    <h1>Sign in</h1>
+    <p class="subtitle">Use your email and password.</p>
 
-    <input type="email" id="loginEmail" placeholder="Email">
-    <input type="password" id="loginPassword" placeholder="Password">
+    <label for="loginEmail">Email</label>
+    <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="username">
 
-    <button onclick="loginUser()">Login</button>
-    <p id="loginMsg"></p>
+    <label for="loginPassword">Password</label>
+    <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
 
-    <a href="register.html">Create Account</a>
-</div>
+    <button type="button" onclick="loginUser()">Login</button>
+    <p id="loginMsg" class="msg"></p>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js"></script>
+    <div class="links">
+      <a href="frontend/pages/auth/register.html">Create an account</a>
+    </div>
+  </div>
+  <script src="frontend/assets/js/auth.js"></script>
 </body>
 </html>
