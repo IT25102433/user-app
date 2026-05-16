@@ -1,5 +1,58 @@
+/**
+ * =============================================================================
+ * MEMBER 2 — Exam & Question Management (Component 02)
+ * =============================================================================
+ * Admin/teacher only: create/edit/delete exams, question bank (MCQ + short answer).
+ * Used by: frontend/pages/exams/create-exam.html, edit-exam.html, question-bank.html
+ *
+ * APIs: GET/POST/PUT/DELETE /api/exams, /api/questions
+ *
+ * Role guard: USER cannot access admin exam pages (redirect to student-home).
+ * =============================================================================
+ */
+
+function getBackendOrigin() {
+  const { protocol, origin } = window.location;
+  if (protocol === "file:" || origin === "null" || !origin) {
+    return "http://127.0.0.1:8081";
+  }
+  return origin;
+}
+
+/** Same rules as auth.js appPageUrl (exam pages may load without auth.js). */
+function resolveAppPageUrl(relativeUnderPages) {
+  if (typeof window.appPageUrl === "function") {
+    return window.appPageUrl(relativeUnderPages);
+  }
+  const clean = String(relativeUnderPages || "").replace(/^\/+/, "");
+  if (window.location.protocol === "file:") {
+    return new URL("../" + clean, window.location.href).href;
+  }
+  const path = window.location.pathname || "";
+  const marker = "/pages/";
+  const idx = path.indexOf(marker);
+  const base = (idx >= 0 ? path.slice(0, idx) + "/pages" : "/pages").replace(/\/$/, "");
+  const pathOnly = `${base}/${clean}`.replace(/([^:]\/)\/+/g, "$1");
+  return `${window.location.origin}${pathOnly}`;
+}
+
+(function guardExamPagesRequireAuth() {
+  const email =
+    localStorage.getItem("userEmail") || sessionStorage.getItem("userEmail");
+  const role =
+    (localStorage.getItem("userRole") || sessionStorage.getItem("userRole") || "").toUpperCase();
+  if (!email || !role) {
+    window.location.replace(resolveAppPageUrl("auth/login.html"));
+    return;
+  }
+  if (role === "USER") {
+    window.location.replace(resolveAppPageUrl("auth/student-home.html"));
+    return;
+  }
+})();
+
 document.addEventListener("DOMContentLoaded", () => {
-  const API_BASE = "http://localhost:8081/api";
+  const API_BASE = `${getBackendOrigin()}/api`;
   let examsCache = [];
 
   function escapeHtml(str) {

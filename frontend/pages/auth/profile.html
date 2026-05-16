@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile — Exam System</title>
+  <link rel="stylesheet" href="../../assets/css/auth.css">
+</head>
+<body>
+  <div class="auth-card">
+    <h1>Profile</h1>
+    <p class="subtitle">Logged-in user (from localStorage).</p>
+
+    <label for="profileEmail">Email</label>
+    <input type="email" id="profileEmail" disabled>
+
+    <label for="profileRole">Role</label>
+    <input type="text" id="profileRole" disabled>
+
+    <p id="profileMsg" class="msg"></p>
+
+    <div class="profile-actions">
+      <button type="button" onclick="loadProfile()">Refresh</button>
+      <button type="button" class="secondary" onclick="logoutUser()">Logout</button>
+    </div>
+
+    <div class="links">
+      <a href="login.html">Back to login</a>
+    </div>
+  </div>
+  <script src="../../assets/js/auth.js"></script>
+</body>
+</html>
