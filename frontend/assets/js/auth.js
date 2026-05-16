@@ -37,6 +37,13 @@ function authDebug(...args) {
   console.log("[auth]", ...args);
 }
 
+/** UI only: neutral/status text vs red error styling on .msg elements */
+function setAuthMsg(el, text, isError) {
+  if (!el) return;
+  el.innerText = text;
+  el.classList.toggle("is-error", !!isError);
+}
+
 /**
  * Path prefix for HTML under …/pages/ (supports /pages/… or /myapp/pages/…).
  */
@@ -138,12 +145,12 @@ async function registerUser() {
   }
 
   if (!fullName || !email || !password || !role) {
-    msg.innerText = "Please fill all fields and choose a role.";
+    setAuthMsg(msg, "Please fill all fields and choose a role.", true);
     return;
   }
 
   const url = `${getAuthApiBase()}/register`;
-  msg.innerText = "Registering…";
+  setAuthMsg(msg, "Registering…", false);
   authDebug("register POST", url, { email, role });
 
   try {
@@ -158,18 +165,21 @@ async function registerUser() {
     if (!res.ok) {
       const errText = await parseError(res);
       authDebug("register error body", errText);
-      msg.innerText = errText;
+      setAuthMsg(msg, errText, true);
       return;
     }
 
-    msg.innerText = "Registered successfully. Redirecting to login…";
+    setAuthMsg(msg, "Registered successfully. Redirecting to login…", false);
     setTimeout(() => {
       window.location.href = appPageUrl("auth/login.html");
     }, 600);
   } catch (e) {
     authDebug("register fetch threw", e);
-    msg.innerText =
-      "Cannot reach server. Run Spring Boot on 8081 and Vite dev with /api proxy, or open pages via http://localhost:5173/pages/…";
+    setAuthMsg(
+      msg,
+      "Cannot reach server. Run Spring Boot on 8081 and Vite dev with /api proxy, or open pages via http://localhost:5173/pages/…",
+      true
+    );
   }
 }
 
@@ -186,12 +196,12 @@ async function loginUser() {
   const password = passwordInput.value;
 
   if (!email || !password) {
-    msg.innerText = "Please enter email and password.";
+    setAuthMsg(msg, "Please enter email and password.", true);
     return;
   }
 
   const url = `${getAuthApiBase()}/login`;
-  msg.innerText = "Signing in…";
+  setAuthMsg(msg, "Signing in…", false);
   authDebug("login POST", url, { email });
 
   try {
@@ -217,7 +227,7 @@ async function loginUser() {
       const errText =
         errorMessageFromJson(data) || "Invalid email or password.";
       authDebug("login error", errText);
-      msg.innerText = errText;
+      setAuthMsg(msg, errText, true);
       return;
     }
 
@@ -226,8 +236,11 @@ async function loginUser() {
     redirectAfterLogin(data.role);
   } catch (e) {
     authDebug("login fetch threw", e);
-    msg.innerText =
-      "Cannot reach server. Run Spring Boot on 8081 and Vite dev with /api proxy, or open pages via http://localhost:5173/pages/…";
+    setAuthMsg(
+      msg,
+      "Cannot reach server. Run Spring Boot on 8081 and Vite dev with /api proxy, or open pages via http://localhost:5173/pages/…",
+      true
+    );
   }
 }
 
@@ -239,7 +252,7 @@ function loadProfile() {
   const roleField = document.getElementById("profileRole");
 
   if (!user) {
-    if (msg) msg.innerText = "Not logged in. Please sign in first.";
+    if (msg) setAuthMsg(msg, "Not logged in. Please sign in first.", true);
     if (emailField) emailField.value = "";
     if (roleField) roleField.value = "";
     return;
@@ -247,7 +260,7 @@ function loadProfile() {
 
   if (emailField) emailField.value = user.email;
   if (roleField) roleField.value = user.role;
-  if (msg) msg.innerText = "";
+  if (msg) setAuthMsg(msg, "", false);
 }
 
 function logoutUser() {
