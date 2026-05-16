@@ -223,7 +223,7 @@ textarea{min-height:96px;resize:vertical}
 /* Exams management table (Edit/Delete page) */
 .table.exams.examsManage .thead,
 .table.exams.examsManage .tr{
-  grid-template-columns: 1.1fr 0.9fr 0.9fr 0.9fr 0.7fr 0.9fr 1.1fr;
+  grid-template-columns: 1.1fr 0.9fr 0.9fr 0.9fr 0.7fr 0.9fr minmax(160px, 1.1fr);
 }
 
 .table.questionTable .thead,
@@ -302,40 +302,6 @@ textarea{min-height:96px;resize:vertical}
   margin-top:4px;
   color:#0f172a;
   font-weight:700;
-}
-
-.statusBadge{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(148,163,184,.35);
-  background: rgba(255,255,255,.75);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: .2px;
-  line-height: 1;
-}
-.statusBadge.draft{
-  background: rgba(148,163,184,.16);
-  border-color: rgba(148,163,184,.35);
-  color: #334155;
-}
-.statusBadge.active{
-  background: rgba(34,197,94,.14);
-  border-color: rgba(34,197,94,.35);
-  color: #166534;
-}
-.statusBadge.pending{
-  background: rgba(245,158,11,.16);
-  border-color: rgba(245,158,11,.40);
-  color: #92400e;
-}
-.statusBadge.closed{
-  background: rgba(239,68,68,.14);
-  border-color: rgba(239,68,68,.35);
-  color: #991b1b;
 }
 
 .modalOverlay{

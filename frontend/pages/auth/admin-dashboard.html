@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Exam System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0c2340;
+      --navy-mid: #123a6b;
+      --gold: #c4a35a;
+      --gold-light: #e8d5a8;
+      --white: #ffffff;
+      --surface: #f4f7fb;
+      --text: #1a2b42;
+      --muted: #5c6f82;
+      --border: #d8e2ef;
+      --shadow: 0 8px 30px rgba(12, 35, 64, 0.08);
+      --shadow-hover: 0 14px 40px rgba(12, 35, 64, 0.14);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body.dash-page {
+      min-height: 100vh;
+      font-family: "Source Sans 3", system-ui, sans-serif;
+      color: var(--text);
+      background: var(--surface);
+      background-image:
+        linear-gradient(165deg, rgba(12, 35, 64, 0.04) 0%, transparent 45%),
+        radial-gradient(ellipse 80% 50% at 100% 0%, rgba(196, 163, 90, 0.12), transparent 50%);
+    }
+
+    .dash-topbar {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      color: var(--white);
+      padding: 0 2rem;
+      box-shadow: 0 4px 20px rgba(12, 35, 64, 0.2);
+    }
+
+    .dash-topbar-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 72px;
+      gap: 1rem;
+    }
+
+    .dash-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .dash-brand-mark {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--gold);
+      color: var(--navy);
+      font-family: "Source Serif 4", Georgia, serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dash-brand-text h1 {
+      font-family: "Source Serif 4", Georgia, serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .dash-brand-text span {
+      font-size: 0.8rem;
+      opacity: 0.85;
+      font-weight: 400;
+    }
+
+    .dash-topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .dash-user {
+      text-align: right;
+      font-size: 0.85rem;
+      opacity: 0.95;
+    }
+
+    .dash-user strong { display: block; font-size: 0.95rem; }
+
+    .btn-logout {
+      padding: 0.55rem 1.1rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--white);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-logout:hover { background: rgba(255, 255, 255, 0.2); }
+
+    .dash-main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 3rem;
+    }
+
+    .dash-welcome {
+      margin-bottom: 2rem;
+    }
+
+    .dash-welcome h2 {
+      font-family: "Source Serif 4", Georgia, serif;
+      font-size: 1.75rem;
+      color: var(--navy);
+      margin-bottom: 0.35rem;
+    }
+
+    .dash-welcome p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 560px;
+      line-height: 1.5;
+    }
+
+    .dash-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .dash-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+      padding: 1.5rem 1.5rem 1.35rem;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--white);
+      box-shadow: var(--shadow);
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      cursor: pointer;
+      font-family: inherit;
+      width: 100%;
+    }
+
+    a.dash-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+      border-color: var(--navy-mid);
+    }
+
+    .dash-card--soon:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+      border-color: var(--gold);
+    }
+
+    .dash-card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .dash-card-icon svg {
+      width: 26px;
+      height: 26px;
+    }
+
+    .dash-card-icon--active {
+      background: linear-gradient(135deg, #e8f0fa, #d4e4f7);
+      color: var(--navy-mid);
+    }
+
+    .dash-card-icon--soon {
+      background: #f0f3f7;
+      color: var(--muted);
+    }
+
+    .dash-card-member {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gold);
+      margin-bottom: 0.35rem;
+    }
+
+    .dash-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+
+    .dash-card p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.45;
+      flex: 1;
+    }
+
+    .dash-card-footer {
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-open {
+      background: var(--navy);
+      color: var(--white);
+    }
+
+    .badge-soon {
+      background: #eef2f7;
+      color: var(--muted);
+    }
+
+    .dash-card-arrow {
+      color: var(--navy-mid);
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      background: var(--navy);
+      color: var(--white);
+      padding: 0.85rem 1.5rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      box-shadow: 0 12px 40px rgba(12, 35, 64, 0.25);
+      opacity: 0;
+      transition: transform 0.35s ease, opacity 0.35s ease;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    @media (max-width: 640px) {
+      .dash-topbar-inner { flex-wrap: wrap; padding: 1rem 0; }
+      .dash-user { display: none; }
+      .dash-main { padding: 1.5rem 1rem 2rem; }
+      .dash-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="dash-page">
+
+  <header class="dash-topbar">
+    <div class="dash-topbar-inner">
+      <div class="dash-brand">
+        <div class="dash-brand-mark">ES</div>
+        <div class="dash-brand-text">
+          <h1>Exam System</h1>
+          <span>Faculty &amp; Administration Portal</span>
+        </div>
+      </div>
+      <div class="dash-topbar-actions">
+        <div class="dash-user">
+          <span>Signed in as</span>
+          <strong id="dashEmail">admin</strong>
+        </div>
+        <button type="button" class="btn-logout" onclick="logoutUser()">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="dash-main">
+    <section class="dash-welcome">
+      <h2>Welcome to your dashboard</h2>
+      <p>Select a module below to manage exams, submissions, grading, or system administration.</p>
+    </section>
+
+    <section class="dash-grid">
+      <a class="dash-card" href="../exams/create-exam.html">
+        <span class="dash-card-member">Member 2</span>
+        <span class="dash-card-icon dash-card-icon--active" aria-hidden="true">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+        </span>
+        <h3>Exam &amp; Question Management</h3>
+        <p>Create exams, edit schedules, and manage the MCQ and short-answer question bank.</p>
+        <span class="dash-card-footer">
+          <span class="badge badge-open">Open</span>
+          <span class="dash-card-arrow" aria-hidden="true">→</span>
+        </span>
+      </a>
+
+      <button type="button" class="dash-card dash-card--soon" data-soon>
+        <span class="dash-card-member">Member 3</span>
+        <span class="dash-card-icon dash-card-icon--soon" aria-hidden="true">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </span>
+        <h3>Examination &amp; Submission</h3>
+        <p>Live exam interface, student attempts, and submission handling.</p>
+        <span class="dash-card-footer">
+          <span class="badge badge-soon">Coming soon</span>
+        </span>
+      </button>
+
+      <button type="button" class="dash-card dash-card--soon" data-soon>
+        <span class="dash-card-member">Member 4</span>
+        <span class="dash-card-icon dash-card-icon--soon" aria-hidden="true">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+        </span>
+        <h3>Result &amp; Grading</h3>
+        <p>Score calculation, grade sheets, and teacher grading panels.</p>
+        <span class="dash-card-footer">
+          <span class="badge badge-soon">Coming soon</span>
+        </span>
+      </button>
+
+      <button type="button" class="dash-card dash-card--soon" data-soon>
+        <span class="dash-card-member">Member 5</span>
+        <span class="dash-card-icon dash-card-icon--soon" aria-hidden="true">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+        </span>
+        <h3>Administrative Management</h3>
+        <p>System settings, activity logs, and access control.</p>
+        <span class="dash-card-footer">
+          <span class="badge badge-soon">Coming soon</span>
+        </span>
+      </button>
+
+      <button type="button" class="dash-card dash-card--soon" data-soon>
+        <span class="dash-card-member">Member 6</span>
+        <span class="dash-card-icon dash-card-icon--soon" aria-hidden="true">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+          </svg>
+        </span>
+        <h3>Results + Admin Management</h3>
+        <p>Integrated results overview and advanced admin management tools.</p>
+        <span class="dash-card-footer">
+          <span class="badge badge-soon">Coming soon</span>
+        </span>
+      </button>
+    </section>
+  </main>
+
+  <p id="toast" class="toast" role="status" aria-live="polite">Coming soon</p>
+
+  <script src="../../assets/js/auth.js"></script>
+  <script>
+    function showComingSoon() {
+      var toast = document.getElementById("toast");
+      toast.classList.add("show");
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(function () {
+        toast.classList.remove("show");
+      }, 2800);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      var email = localStorage.getItem("userEmail") || sessionStorage.getItem("userEmail");
+      var role = (localStorage.getItem("userRole") || sessionStorage.getItem("userRole") || "").toUpperCase();
+      if (!email || role !== "ADMIN") {
+        window.location.replace("login.html");
+        return;
+      }
+      document.getElementById("dashEmail").textContent = email;
+
+      document.querySelectorAll("[data-soon]").forEach(function (btn) {
+        btn.addEventListener("click", showComingSoon);
+      });
+    });
+  </script>
+</body>
+</html>

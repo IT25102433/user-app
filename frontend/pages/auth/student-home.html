@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student — Exam System</title>
+  <link rel="stylesheet" href="../../assets/css/auth.css">
+</head>
+<body>
+  <div class="auth-card" style="max-width: 440px">
+    <h1>Student area</h1>
+    <p class="subtitle">Signed in as <strong id="studentHomeEmail"></strong></p>
+    <p class="subtitle" style="margin-top: 12px">
+      Live exams and submissions are handled by Member 3 (Examination &amp; Submission).
+      This account cannot access teacher exam management.
+    </p>
+    <button type="button" style="width:100%;margin-top:16px;padding:12px;border-radius:8px;border:none;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font-weight:600;cursor:pointer" onclick="logoutUser()">Logout</button>
+  </div>
+  <script src="../../assets/js/auth.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var email = localStorage.getItem("userEmail") || sessionStorage.getItem("userEmail");
+      var role = (localStorage.getItem("userRole") || sessionStorage.getItem("userRole") || "").toUpperCase();
+      if (!email || !role) {
+        window.location.replace("login.html");
+        return;
+      }
+      if (role === "ADMIN") {
+        window.location.replace("../exams/create-exam.html");
+        return;
+      }
+      document.getElementById("studentHomeEmail").textContent = email;
+    });
+  </script>
+</body>
+</html>

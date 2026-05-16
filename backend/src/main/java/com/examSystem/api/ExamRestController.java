@@ -10,9 +10,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/** Member 2 — Exam & Question Management: exam CRUD for admin UI (pages/exams/). */
 @RestController
 @RequestMapping("/api/exams")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173", "http://127.0.0.1:5173"})
 public class ExamRestController {
     private final ExamManagementService service;
 
