@@ -1,13 +1,19 @@
-/* Simple auth pages — forms + messages */
+/* Auth pages — blue/white theme (matches exam.css) */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
 :root {
-  --bg: #0f172a;
-  --card: #1e293b;
-  --text: #f8fafc;
-  --muted: #94a3b8;
-  --accent: #38bdf8;
-  --border: #334155;
-  --error: #f87171;
+  --blue-dark: #1a3a6b;
+  --blue-mid: #1e4db7;
+  --blue-main: #2563eb;
+  --blue-light: #3b82f6;
+  --bg: #f0f4ff;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --accent: #2563eb;
+  --error: #ef4444;
 }
 
 * {
@@ -17,8 +23,11 @@
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  background: radial-gradient(ellipse at top, #1e293b 0%, var(--bg) 55%);
+  font-family: 'DM Sans', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  background-image:
+    linear-gradient(165deg, rgba(37, 99, 235, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 50% at 0% 0%, rgba(30, 77, 183, 0.1), transparent 55%);
   color: var(--text);
   display: flex;
   align-items: center;
@@ -33,12 +42,13 @@ body {
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 2rem;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.12);
 }
 
 .auth-card h1 {
   margin: 0 0 0.25rem;
   font-size: 1.5rem;
+  color: var(--blue-dark);
 }
 
 .auth-card .subtitle {
@@ -61,14 +71,14 @@ body {
   margin-bottom: 1rem;
   border-radius: 8px;
   border: 1px solid var(--border);
-  background: #0f172a;
+  background: #ffffff;
   color: var(--text);
   font-size: 1rem;
 }
 
 .auth-card input:focus,
 .auth-card select:focus {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--blue-light);
   outline-offset: 0;
 }
 
@@ -77,8 +87,8 @@ body {
   padding: 0.75rem;
   border: none;
   border-radius: 8px;
-  background: linear-gradient(135deg, #0ea5e9, #6366f1);
-  color: white;
+  background: linear-gradient(135deg, var(--blue-main), var(--blue-mid));
+  color: #ffffff;
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
@@ -92,6 +102,10 @@ body {
   min-height: 1.25rem;
   margin-top: 0.75rem;
   font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.auth-card .msg.is-error {
   color: var(--error);
 }
 
@@ -102,7 +116,7 @@ body {
 }
 
 .auth-card .links a {
-  color: var(--accent);
+  color: var(--blue-main);
   text-decoration: none;
 }
 
