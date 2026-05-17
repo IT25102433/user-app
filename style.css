@@ -1,15 +1,18 @@
 body {
-  font-family: Arial;
-  background: #f4f4f4;
+  font-family: "DM Sans", Arial, sans-serif;
+  background: #f0f9ff;
+  color: #1e293b;
 }
 
 .box {
   width: 350px;
   margin: 50px auto;
   padding: 20px;
-  background: white;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 10px;
   text-align: center;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.08);
 }
 
 input, select, button {
@@ -19,12 +22,20 @@ input, select, button {
 }
 
 button {
-  background: blue;
-  color: white;
+  background: #2563eb;
+  color: #ffffff;
   border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1e40af;
 }
 
 a {
   display: block;
   margin-top: 10px;
+  color: #2563eb;
 }
