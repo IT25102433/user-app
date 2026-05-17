@@ -22,9 +22,7 @@ public class QuestionManagementService {
     }
 
     public QuestionEntity createMcq(CreateMcqQuestionRequest req) {
-        if (req.correctIndex() < 0 || req.correctIndex() >= req.options().size()) {
-            throw new IllegalArgumentException("correctIndex out of range");
-        }
+        validateCorrectIndex(req.correctIndex(), req.options().size());
         var subjectCode = req.subjectCode().trim();
         var text = req.text().trim();
         if (questions.existsBySubjectCodeIgnoreCaseAndTextIgnoreCase(subjectCode, text)) {
@@ -75,11 +73,61 @@ public class QuestionManagementService {
         return questions.findAll();
     }
 
+    public QuestionEntity get(Long id) {
+        return questions.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Question not found: " + id));
+    }
+
+    public QuestionEntity updateMcq(Long id, CreateMcqQuestionRequest req) {
+        validateCorrectIndex(req.correctIndex(), req.options().size());
+        var entity = questions.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Question not found: " + id));
+        if (!(entity instanceof McqQuestionEntity mcq)) {
+            throw new IllegalArgumentException("Question is not MCQ: " + id);
+        }
+        applyCommonFields(mcq, req.questionCode(), req.subjectCode(), req.text(), req.marks(), req.examId());
+        mcq.setOptionsJson(toJsonArray(req.options()));
+        mcq.setCorrectIndex(req.correctIndex());
+        return questions.save(mcq);
+    }
+
+    public QuestionEntity updateShort(Long id, CreateShortAnswerQuestionRequest req) {
+        var entity = questions.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Question not found: " + id));
+        if (!(entity instanceof ShortAnswerQuestionEntity shortQ)) {
+            throw new IllegalArgumentException("Question is not short answer: " + id);
+        }
+        applyCommonFields(shortQ, req.questionCode(), req.subjectCode(), req.text(), req.marks(), req.examId());
+        shortQ.setExpectedAnswer(req.expectedAnswer().trim());
+        return questions.save(shortQ);
+    }
+
+    private void applyCommonFields(QuestionEntity entity, String questionCode, String subjectCode, String text, int marks, String examId) {
+        entity.setQuestionCode(questionCode.trim());
+        entity.setSubjectCode(subjectCode.trim());
+        entity.setText(text.trim());
+        entity.setMarks(marks);
+        if (examId != null && !examId.isBlank()) {
+            var exam = exams.findById(examId.trim())
+                    .orElseThrow(() -> new IllegalArgumentException("Exam not found: " + examId));
+            entity.setExam(exam);
+        } else {
+            entity.setExam(null);
+        }
+    }
+
     public void delete(Long id) {
         if (!questions.existsById(id)) {
             throw new IllegalArgumentException("Question not found: " + id);
         }
         questions.deleteById(id);
+    }
+
+    private static void validateCorrectIndex(int correctIndex, int optionCount) {
+        if (correctIndex < 1 || correctIndex > optionCount) {
+            throw new IllegalArgumentException(
+                    "Correct answer must be between 1 and " + optionCount + " (number of options)");
+        }
     }
 
     // Minimal JSON encoding to avoid extra deps

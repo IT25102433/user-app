@@ -101,10 +101,10 @@
               <div class="form-group">
                 <label for="correctIndex">Correct Option</label>
                 <select id="correctIndex">
-                  <option value="0">1</option>
-                  <option value="1">2</option>
-                  <option value="2">3</option>
-                  <option value="3">4</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
                 </select>
               </div>
             </div>
@@ -114,8 +114,10 @@
             <textarea id="expectedAnswer" placeholder="Model answer..."></textarea>
           </div>
         </div>
+        <input type="hidden" id="editingQuestionId" value="">
         <div class="form-actions">
-          <button type="submit" class="btn btn-primary">Add Question</button>
+          <button type="button" class="btn btn-outline" id="cancelQuestionEdit" style="display:none">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="questionSubmitBtn">Add Question</button>
         </div>
       </form>
     </div>

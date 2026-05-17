@@ -14,7 +14,7 @@ public class McqQuestionEntity extends QuestionEntity {
     @Column(name = "options_json", columnDefinition = "TEXT")
     private String optionsJson;
 
-    @Min(0)
+    @Min(1)
     @Max(10_000)
     @Column(name = "correct_index")
     private int correctIndex;

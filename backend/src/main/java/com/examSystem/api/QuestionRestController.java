@@ -39,6 +39,21 @@ public class QuestionRestController {
         return service.list(subjectCode, examId);
     }
 
+    @GetMapping("/{id}")
+    public QuestionEntity get(@PathVariable Long id) {
+        return service.get(id);
+    }
+
+    @PutMapping("/{id}/mcq")
+    public QuestionEntity updateMcq(@PathVariable Long id, @Valid @RequestBody CreateMcqQuestionRequest req) {
+        return service.updateMcq(id, req);
+    }
+
+    @PutMapping("/{id}/short")
+    public QuestionEntity updateShort(@PathVariable Long id, @Valid @RequestBody CreateShortAnswerQuestionRequest req) {
+        return service.updateShort(id, req);
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {

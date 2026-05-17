@@ -1,0 +1,163 @@
+/* Shared app layout — blue, light blue & white theme */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-dark: #1e40af;
+  --accent-soft: #dbeafe;
+  --accent-border: #93c5fd;
+  --white: #ffffff;
+  --surface: #f0f9ff;
+  --text: #1e293b;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --error: #dc2626;
+  --success: #15803d;
+  --shadow: 0 4px 16px rgba(37, 99, 235, 0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body.app-page {
+  min-height: 100vh;
+  font-family: "DM Sans", system-ui, sans-serif;
+  color: var(--text);
+  background: var(--surface);
+  background-image:
+    linear-gradient(165deg, rgba(37, 99, 235, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 50% at 100% 0%, rgba(37, 99, 235, 0.04), transparent 55%);
+}
+
+.app-topbar {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+  color: var(--white);
+  padding: 0 1.5rem;
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.2);
+}
+
+.app-topbar-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 64px;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.app-brand { display: flex; align-items: center; gap: 12px; }
+.app-brand-mark {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--white); color: var(--primary);
+  font-weight: 700; display: flex; align-items: center; justify-content: center;
+}
+.app-brand h1 { font-size: 1.05rem; font-weight: 700; }
+.app-brand span { font-size: 0.78rem; opacity: 0.85; display: block; }
+
+.app-nav { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.app-nav a {
+  color: var(--white); text-decoration: none; font-size: 0.85rem;
+  padding: 0.4rem 0.65rem; border-radius: 6px; opacity: 0.9;
+}
+.app-nav a:hover, .app-nav a.active {
+  background: rgba(255, 255, 255, 0.2); opacity: 1;
+}
+
+.app-topbar-actions { display: flex; align-items: center; gap: 0.75rem; }
+.app-user { font-size: 0.82rem; text-align: right; opacity: 0.95; }
+.app-user strong { display: block; font-size: 0.9rem; }
+
+.btn {
+  padding: 0.5rem 1rem; border-radius: 8px; border: none;
+  font-family: inherit; font-size: 0.88rem; font-weight: 600; cursor: pointer;
+}
+.btn-outline {
+  background: rgba(255,255,255,0.1); color: var(--white);
+  border: 1px solid rgba(255,255,255,0.35);
+}
+.btn-outline:hover {
+  background: var(--white); color: var(--primary); border-color: var(--white);
+}
+.btn-primary { background: var(--primary); color: var(--white); }
+.btn-primary:hover { background: var(--primary-hover); color: var(--white); }
+.btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
+
+.app-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.75rem 1.5rem 2.5rem;
+}
+
+.app-main h2 { font-size: 1.5rem; margin-bottom: 0.35rem; color: var(--text); }
+.app-lead { color: var(--muted); margin-bottom: 1.5rem; line-height: 1.5; }
+
+.card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.25rem; box-shadow: var(--shadow); margin-bottom: 1rem;
+}
+.card h3 { font-size: 1rem; margin-bottom: 0.75rem; color: var(--text); }
+
+.alert {
+  padding: 0.65rem 0.85rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9rem;
+  display: none;
+}
+.alert.show { display: block; }
+.alert.error { background: #fef2f2; color: var(--error); border: 1px solid #fecaca; }
+.alert.success { background: #f0fdf4; color: var(--success); border: 1px solid #bbf7d0; }
+
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.6rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { background: var(--accent-soft); color: var(--text); font-weight: 600; }
+tbody tr:hover { background: var(--accent-soft); }
+
+.form-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;
+}
+.form-group label { display: block; font-size: 0.82rem; color: var(--muted); margin-bottom: 0.3rem; }
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%; padding: 0.55rem 0.65rem; border: 1px solid var(--border);
+  border-radius: 8px; font-family: inherit; font-size: 0.95rem;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: 2px solid var(--primary); border-color: var(--primary);
+}
+
+.exam-list { display: grid; gap: 0.75rem; }
+.exam-item {
+  display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+  padding: 1rem; border: 1px solid var(--border); border-radius: 10px; background: var(--white);
+}
+
+.question-block {
+  border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;
+}
+.question-block h4 { margin-bottom: 0.5rem; color: var(--text); }
+.mcq-options label {
+  display: block; padding: 0.4rem 0; cursor: pointer; font-size: 0.95rem;
+}
+
+.stats-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem;
+}
+.stat-box {
+  background: var(--accent-soft); border-radius: 10px; padding: 1rem; text-align: center;
+}
+.stat-box .num { font-size: 1.75rem; font-weight: 700; color: var(--primary); }
+.stat-box .lbl { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
+
+.dash-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem;
+}
+.dash-card {
+  display: flex; flex-direction: column; text-decoration: none; color: inherit;
+  padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border);
+  background: var(--white); box-shadow: var(--shadow); transition: transform 0.2s, border-color 0.2s;
+}
+.dash-card:hover { transform: translateY(-3px); border-color: var(--primary); }
+.dash-card h3 { font-size: 1rem; margin: 0.5rem 0; color: var(--text); }
+.dash-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.4; flex: 1; }
+
+.empty-note { color: var(--muted); font-style: italic; padding: 1rem 0; }
