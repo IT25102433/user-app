@@ -32,6 +32,10 @@ public class ExamEntity {
     @Column(name = "exam_date")
     private LocalDate examDate;
 
+    /** Legacy DB column (older UI); kept so inserts satisfy NOT NULL when column still exists. */
+    @Column(name = "status", length = 32, nullable = false)
+    private String status = "ACTIVE";
+
     @Min(0)
     @Column(name = "grace_minutes", nullable = false)
     private int graceMinutes = 10;
@@ -49,6 +53,7 @@ public class ExamEntity {
         this.durationMinutes = durationMinutes;
         this.totalMarks = totalMarks;
         this.examDate = examDate;
+        this.status = "ACTIVE";
         this.graceMinutes = Math.max(0, graceMinutes);
         this.passCriteriaPercent = Math.max(0, Math.min(100, passCriteriaPercent));
     }
@@ -91,6 +96,14 @@ public class ExamEntity {
 
     public void setExamDate(LocalDate examDate) {
         this.examDate = examDate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = (status == null || status.isBlank()) ? "ACTIVE" : status.trim();
     }
 
     public int getGraceMinutes() {

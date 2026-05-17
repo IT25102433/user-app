@@ -1,5 +1,6 @@
 package com.examSystem.api;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -28,6 +29,31 @@ public class ApiExceptionHandler {
                 "message", "Validation failed; check required fields (e.g. examDate).",
                 "fields", fields
         ));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, Object>> dataIntegrity(DataIntegrityViolationException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                "error", "data_error",
+                "message", rootMessage(e, "Could not save exam. Check for duplicate Exam ID or database constraints.")
+        ));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> generic(Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                "error", "internal_error",
+                "message", rootMessage(e, "Internal Server Error")
+        ));
+    }
+
+    private static String rootMessage(Throwable e, String fallback) {
+        Throwable cur = e;
+        while (cur.getCause() != null && cur.getCause() != cur) {
+            cur = cur.getCause();
+        }
+        String msg = cur.getMessage();
+        return (msg != null && !msg.isBlank()) ? msg : fallback;
     }
 }
 

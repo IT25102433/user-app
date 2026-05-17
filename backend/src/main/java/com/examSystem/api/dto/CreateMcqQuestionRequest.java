@@ -12,7 +12,7 @@ public record CreateMcqQuestionRequest(
         @NotBlank String text,
         @Min(1) int marks,
         @NotEmpty List<String> options,
-        @Min(0) int correctIndex,
+        @Min(1) int correctIndex,
         String examId
 ) {}
 

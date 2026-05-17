@@ -1,15 +1,3 @@
-/**
- * =============================================================================
- * MEMBER 2 — Exam & Question Management (Component 02)
- * =============================================================================
- * Admin/teacher only: create/edit/delete exams, question bank (MCQ + short answer).
- * Used by: frontend/pages/exams/create-exam.html, edit-exam.html, question-bank.html
- *
- * APIs: GET/POST/PUT/DELETE /api/exams, /api/questions
- *
- * Role guard: USER cannot access admin exam pages (redirect to student-home).
- * =============================================================================
- */
 
 function getBackendOrigin() {
   const { protocol, origin } = window.location;
@@ -332,6 +320,51 @@ document.addEventListener("DOMContentLoaded", () => {
     const downloadQuestions = document.getElementById("downloadQuestions");
     const cards = document.getElementById("questionCards");
     const empty = document.getElementById("questionEmpty");
+    const editingQuestionId = document.getElementById("editingQuestionId");
+    const questionSubmitBtn = document.getElementById("questionSubmitBtn");
+    const cancelQuestionEdit = document.getElementById("cancelQuestionEdit");
+
+    function questionExamId(q) {
+      return (q.exam && q.exam.examId) || q.examId || "";
+    }
+
+    function resetQuestionEditMode() {
+      if (editingQuestionId) editingQuestionId.value = "";
+      if (questionSubmitBtn) questionSubmitBtn.textContent = "Add Question";
+      if (cancelQuestionEdit) cancelQuestionEdit.style.display = "none";
+      if (questionType) questionType.disabled = false;
+    }
+
+    function startQuestionEditMode(id) {
+      if (editingQuestionId) editingQuestionId.value = String(id);
+      if (questionSubmitBtn) questionSubmitBtn.textContent = "Save Changes";
+      if (cancelQuestionEdit) cancelQuestionEdit.style.display = "";
+      if (questionType) questionType.disabled = true;
+    }
+
+    function fillQuestionForm(q) {
+      questionType.value = q.type === "SHORT" ? "SHORT" : "MCQ";
+      toggleQuestionType();
+      document.getElementById("questionCode").value = q.questionCode || "";
+      document.getElementById("questionSubjectCode").value = q.subjectCode || "";
+      document.getElementById("questionText").value = q.text || "";
+      document.getElementById("questionMarks").value = String(q.marks ?? 1);
+      examSelect.value = questionExamId(q);
+
+      if (q.type === "MCQ") {
+        let opts = [];
+        try {
+          opts = q.optionsJson ? JSON.parse(q.optionsJson) : [];
+        } catch {}
+        ["option1", "option2", "option3", "option4"].forEach((id, i) => {
+          document.getElementById(id).value = opts[i] || "";
+        });
+        const storedCorrect = q.correctIndex ?? 1;
+        document.getElementById("correctIndex").value = String(storedCorrect >= 1 ? storedCorrect : 1);
+      } else {
+        document.getElementById("expectedAnswer").value = q.expectedAnswer || "";
+      }
+    }
 
     function toggleQuestionType() {
       const mode = questionType.value;
@@ -343,9 +376,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (question.type === "SHORT") return question.expectedAnswer || "—";
       try {
         const opts = question.optionsJson ? JSON.parse(question.optionsJson) : [];
-        if (Array.isArray(opts) && typeof question.correctIndex === "number" && question.correctIndex >= 0) {
-          const answer = opts[question.correctIndex] ?? `Option ${question.correctIndex + 1}`;
-          return `(${question.correctIndex + 1}) ${answer}`;
+        if (Array.isArray(opts) && typeof question.correctIndex === "number" && question.correctIndex >= 1) {
+          const answer = opts[question.correctIndex - 1] ?? `Option ${question.correctIndex}`;
+          return `(${question.correctIndex}) ${answer}`;
         }
       } catch {}
       return "—";
@@ -376,22 +409,17 @@ document.addEventListener("DOMContentLoaded", () => {
         cards.innerHTML = list
           .map(
             (q) => `
-          <article class="question-card">
+          <article class="question-card question-card--compact">
             <div class="question-top">
               <span class="${q.type === "MCQ" ? "badge badge-purple" : "badge badge-green"}">${escapeHtml(q.type)}</span>
-              <strong>${escapeHtml(String(q.marks))} pts</strong>
+              <span class="question-card-marks">${escapeHtml(String(q.marks))} pts</span>
             </div>
-            <h3>${escapeHtml(q.text)}</h3>
-            <div class="question-meta">
-              <div><span>Code</span><strong>${escapeHtml(q.questionCode)}</strong></div>
-              <div><span>Subject</span><strong>${escapeHtml(q.subjectCode)}</strong></div>
-            </div>
-            <div class="question-answer">
-              <span>Answer</span>
-              <strong>${escapeHtml(formatQuestionAnswer(q))}</strong>
-            </div>
-            <div class="form-actions" style="margin-top:10px; padding-top:0; border-top:0;">
-              <button type="button" class="btn btn-danger btn-sm" data-question-id="${escapeHtml(String(q.id))}">Delete</button>
+            <p class="question-card-text">${escapeHtml(q.text)}</p>
+            <p class="question-card-meta">${escapeHtml(q.questionCode)} · ${escapeHtml(q.subjectCode)}</p>
+            <p class="question-card-answer">${escapeHtml(formatQuestionAnswer(q))}</p>
+            <div class="question-card-actions">
+              <button type="button" class="btn btn-outline btn-sm" data-action="edit" data-question-id="${escapeHtml(String(q.id))}">Edit</button>
+              <button type="button" class="btn btn-danger btn-sm" data-action="delete" data-question-id="${escapeHtml(String(q.id))}">Delete</button>
             </div>
           </article>
         `
@@ -473,8 +501,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const opts = q.optionsJson ? JSON.parse(q.optionsJson) : [];
             if (Array.isArray(opts)) {
               optionsText = opts.map((opt, i) => `${i + 1}) ${opt}`).join(" | ");
-              if (typeof q.correctIndex === "number" && q.correctIndex >= 0 && q.correctIndex < opts.length) {
-                answerText = `${q.correctIndex + 1}) ${opts[q.correctIndex]}`;
+              if (typeof q.correctIndex === "number" && q.correctIndex >= 1 && q.correctIndex <= opts.length) {
+                answerText = `${q.correctIndex}) ${opts[q.correctIndex - 1]}`;
               }
             }
           } catch {}
@@ -517,17 +545,52 @@ document.addEventListener("DOMContentLoaded", () => {
       const btn = e.target?.closest?.("button[data-question-id]");
       if (!btn) return;
       const id = btn.getAttribute("data-question-id");
+      const action = btn.getAttribute("data-action");
       if (!id) return;
-      showConfirmDialog("Delete this question?", async () => {
-        try {
-          await apiJson(`/questions/${encodeURIComponent(id)}`, { method: "DELETE" });
-          showAlert("questionAlert", "Question deleted.", "success");
-          await renderQuestions(subjectFilter.value.trim());
-        } catch (err) {
-          showAlert("questionAlert", err.message || "Failed to delete question.", "error");
+
+      if (action === "edit") {
+        let q = currentQuestions.find((item) => String(item.id) === String(id));
+        if (!q) {
+          try {
+            q = await apiJson(`/questions/${encodeURIComponent(id)}`);
+          } catch (err) {
+            showAlert("questionAlert", err.message || "Failed to load question.", "error");
+            return;
+          }
         }
-      });
+        fillQuestionForm(q);
+        startQuestionEditMode(id);
+        questionForm.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+
+      if (action === "delete") {
+        showConfirmDialog("Delete this question?", async () => {
+          try {
+            await apiJson(`/questions/${encodeURIComponent(id)}`, { method: "DELETE" });
+            if (editingQuestionId && editingQuestionId.value === String(id)) {
+              questionForm.reset();
+              resetQuestionEditMode();
+              document.getElementById("questionType").value = "MCQ";
+              toggleQuestionType();
+            }
+            showAlert("questionAlert", "Question deleted.", "success");
+            await renderQuestions(subjectFilter.value.trim());
+          } catch (err) {
+            showAlert("questionAlert", err.message || "Failed to delete question.", "error");
+          }
+        });
+      }
     });
+
+    if (cancelQuestionEdit) {
+      cancelQuestionEdit.addEventListener("click", () => {
+        questionForm.reset();
+        resetQuestionEditMode();
+        document.getElementById("questionType").value = "MCQ";
+        toggleQuestionType();
+      });
+    }
 
     questionForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -545,6 +608,8 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      const editId = editingQuestionId?.value?.trim();
+
       try {
         if (mode === "MCQ") {
           const options = [
@@ -557,30 +622,45 @@ document.addEventListener("DOMContentLoaded", () => {
             showAlert("questionAlert", "MCQ needs at least 2 options.", "error");
             return;
           }
-          await apiJson("/questions/mcq", {
-            method: "POST",
-            body: JSON.stringify({
-              ...payload,
-              options,
-              correctIndex: Number(document.getElementById("correctIndex").value || 0),
-            }),
+          const correctIndex = Number(document.getElementById("correctIndex").value || 1);
+          if (correctIndex < 1 || correctIndex > options.length) {
+            showAlert(
+              "questionAlert",
+              `Correct option must be between 1 and ${options.length}.`,
+              "error"
+            );
+            return;
+          }
+          const body = JSON.stringify({
+            ...payload,
+            options,
+            correctIndex,
           });
+          if (editId) {
+            await apiJson(`/questions/${encodeURIComponent(editId)}/mcq`, { method: "PUT", body });
+          } else {
+            await apiJson("/questions/mcq", { method: "POST", body });
+          }
         } else {
           const expectedAnswer = document.getElementById("expectedAnswer").value.trim();
           if (!expectedAnswer) {
             showAlert("questionAlert", "Expected answer is required for short questions.", "error");
             return;
           }
-          await apiJson("/questions/short", {
-            method: "POST",
-            body: JSON.stringify({
-              ...payload,
-              expectedAnswer,
-            }),
-          });
+          const body = JSON.stringify({ ...payload, expectedAnswer });
+          if (editId) {
+            await apiJson(`/questions/${encodeURIComponent(editId)}/short`, { method: "PUT", body });
+          } else {
+            await apiJson("/questions/short", { method: "POST", body });
+          }
         }
-        showAlert("questionAlert", "Question added successfully.", "success");
+        showAlert(
+          "questionAlert",
+          editId ? "Question updated successfully." : "Question added successfully.",
+          "success"
+        );
         questionForm.reset();
+        resetQuestionEditMode();
         document.getElementById("questionType").value = "MCQ";
         toggleQuestionType();
         await renderQuestions(subjectFilter.value.trim());
