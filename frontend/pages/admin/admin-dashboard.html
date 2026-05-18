@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — Exam System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../assets/css/admin.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --white:    #ffffff;
+      --bg:       #f0f4f8;
+      --surface:  #ffffff;
+      --border:   #dde3ed;
+      --text:     #1a2035;
+      --muted:    #6b7a99;
+      --primary:  #2563eb;
+      --primary-light: #eff6ff;
+      --success:  #16a34a;
+      --success-light: #f0fdf4;
+      --danger:   #dc2626;
+      --danger-light: #fef2f2;
+      --warn:     #d97706;
+      --warn-light: #fffbeb;
+      --shadow:   0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04);
+      --radius:   10px;
+      --font:     'Inter', sans-serif;
+    }
+
+    body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
+
+    /* ── Layout ── */
+    .shell { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 240px; background: var(--white); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; flex-shrink: 0;
+      position: sticky; top: 0; height: 100vh; padding: 0;
+    }
+    .sidebar-logo {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo h2 { font-size: 16px; font-weight: 700; color: var(--primary); }
+    .sidebar-logo p  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    .nav-section { padding: 12px 12px 4px; }
+    .nav-label { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; padding: 0 8px; margin-bottom: 4px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 7px; font-size: 13px; font-weight: 500;
+      color: var(--muted); cursor: pointer; text-decoration: none;
+      transition: all 0.15s; margin-bottom: 2px;
+    }
+    .nav-item:hover { background: var(--bg); color: var(--text); }
+    .nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+    .nav-item .nav-icon { width: 16px; text-align: center; }
+
+    .sidebar-bottom {
+      margin-top: auto; padding: 16px 12px;
+      border-top: 1px solid var(--border);
+    }
+    .admin-badge {
+      display: flex; align-items: center; gap: 10px; padding: 10px;
+      background: var(--primary-light); border-radius: 8px;
+    }
+    .admin-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--primary); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; flex-shrink: 0;
+    }
+    .admin-info h4 { font-size: 12px; font-weight: 600; color: var(--text); }
+    .admin-info p  { font-size: 11px; color: var(--muted); }
+
+    /* ── Main ── */
+    .main { flex: 1; padding: 28px 32px; overflow-y: auto; }
+
+    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+    .page-header h1 { font-size: 22px; font-weight: 700; color: var(--text); }
+    .page-header p  { font-size: 13px; color: var(--muted); margin-top: 3px; }
+    .header-actions { display: flex; gap: 8px; }
+
+    /* ── Buttons ── */
+    .btn { padding: 8px 16px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; font-family: var(--font); }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-outline { background: white; color: var(--text); border: 1px solid var(--border); }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-danger { background: var(--danger-light); color: var(--danger); border: 1px solid #fca5a5; }
+    .btn-danger:hover { background: #fee2e2; }
+    .btn-sm { padding: 5px 10px; font-size: 12px; }
+
+    /* ── Stats ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px 20px;
+      box-shadow: var(--shadow);
+    }
+    .stat-card .stat-label { font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 6px; }
+    .stat-card .stat-value { font-size: 28px; font-weight: 700; color: var(--text); }
+    .stat-card .stat-sub   { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .stat-card.blue  { border-top: 3px solid var(--primary); }
+    .stat-card.green { border-top: 3px solid var(--success); }
+    .stat-card.warn  { border-top: 3px solid var(--warn); }
+    .stat-card.red   { border-top: 3px solid var(--danger); }
+
+    /* ── Panel ── */
+    .panel { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .panel-title  { font-size: 14px; font-weight: 600; color: var(--text); }
+    .panel-count  { font-size: 12px; font-weight: 500; padding: 3px 10px; background: var(--bg); border-radius: 20px; color: var(--muted); }
+
+    .content-grid { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
+
+    /* ── Table ── */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th {
+      font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.06em; padding: 11px 16px; text-align: left;
+      background: #f8fafc; border-bottom: 1px solid var(--border);
+    }
+    .data-table td { padding: 13px 16px; font-size: 13px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: #f8fafc; }
+
+    /* ── Badges ── */
+    .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .badge-blue   { background: var(--primary-light); color: var(--primary); }
+    .badge-green  { background: var(--success-light); color: var(--success); }
+    .badge-gray   { background: #f1f5f9; color: var(--muted); }
+    .badge-red    { background: var(--danger-light); color: var(--danger); }
+    .badge-warn   { background: var(--warn-light); color: var(--warn); }
+
+    .status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; }
+    .dot-green { background: var(--success); }
+    .dot-gray  { background: #cbd5e1; }
+
+    /* ── Quick Actions ── */
+    .action-list { display: flex; flex-direction: column; }
+    .action-item {
+      display: flex; align-items: center; gap: 14px; padding: 14px 18px;
+      border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s;
+    }
+    .action-item:last-child { border-bottom: none; }
+    .action-item:hover { background: #f8fafc; }
+    .action-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+    .action-info h4 { font-size: 13px; font-weight: 600; color: var(--text); }
+    .action-info p  { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+    /* ── Modal ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.4); backdrop-filter: blur(2px); z-index: 100; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: white; border-radius: 12px; padding: 24px; width: 440px; max-width: 95vw; box-shadow: 0 20px 40px rgba(0,0,0,0.15); animation: slideUp 0.2s ease; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .form-group input,
+    .form-group select {
+      width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px;
+      font-size: 13px; font-family: var(--font); color: var(--text); background: white; outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 20px; right: 20px; z-index: 999;
+      padding: 12px 18px; border-radius: 8px; font-size: 13px; font-weight: 500;
+      background: #1e293b; color: white;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      animation: toastIn 0.3s ease; max-width: 300px;
+    }
+    .toast.success { background: var(--success); }
+    .toast.error   { background: var(--danger); }
+    @keyframes toastIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <h2>🎓 ExamSystem</h2>
+      <p>Admin Panel</p>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Management</div>
+      <a href="admin-dashboard.html" class="nav-item active">
+        <span class="nav-icon">⊞</span> Dashboard
+      </a>
+      <a href="system-logs.html" class="nav-item">
+        <span class="nav-icon">📋</span> System Logs
+      </a>
+      <a href="settings.html" class="nav-item">
+        <span class="nav-icon">⚙</span> Access Control
+      </a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Actions</div>
+      <a href="#" class="nav-item" onclick="confirmPublish(); return false;">
+        <span class="nav-icon">✓</span> Publish Results
+      </a>
+      <a href="#" class="nav-item" onclick="confirmShutdown(); return false;">
+        <span class="nav-icon">⚠</span> Maintenance
+      </a>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="admin-badge">
+        <div class="admin-avatar">SA</div>
+        <div class="admin-info">
+          <h4>Super Admin</h4>
+          <p>SUPER_ADMIN</p>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <h1>Admin Dashboard</h1>
+        <p>Manage administrator accounts and system settings</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-outline" onclick="loadAdmins()">↺ Refresh</button>
+        <button class="btn btn-primary" onclick="openModal('createModal')">+ New Admin</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card blue">
+        <div class="stat-label">Total Admins</div>
+        <div class="stat-value" id="statTotal">—</div>
+        <div class="stat-sub">registered accounts</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">Active</div>
+        <div class="stat-value" id="statActive">—</div>
+        <div class="stat-sub">currently active</div>
+      </div>
+      <div class="stat-card warn">
+        <div class="stat-label">Dept Heads</div>
+        <div class="stat-value" id="statDept">—</div>
+        <div class="stat-sub">department admins</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-label">Revoked</div>
+        <div class="stat-value" id="statRevoked">—</div>
+        <div class="stat-sub">access revoked</div>
+      </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="content-grid">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Administrator Accounts</span>
+          <span class="panel-count" id="tableCount">Loading...</span>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Department</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="adminTableBody">
+            <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:30px">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="panel action-list">
+        <div class="panel-header"><span class="panel-title">Quick Actions</span></div>
+        <div class="action-item" onclick="confirmPublish()">
+          <div class="action-icon" style="background:#eff6ff">📋</div>
+          <div class="action-info">
+            <h4>Publish All Results</h4>
+            <p>Release all pending exam results</p>
+          </div>
+        </div>
+        <div class="action-item" onclick="location.href='system-logs.html'">
+          <div class="action-icon" style="background:#f0fdf4">📊</div>
+          <div class="action-info">
+            <h4>View System Logs</h4>
+            <p>Activity and audit trail</p>
+          </div>
+        </div>
+        <div class="action-item" onclick="location.href='settings.html'">
+          <div class="action-icon" style="background:#fffbeb">🔐</div>
+          <div class="action-info">
+            <h4>Access Toggles</h4>
+            <p>Manage global permissions</p>
+          </div>
+        </div>
+        <div class="action-item" onclick="confirmShutdown()">
+          <div class="action-icon" style="background:#fef2f2">⚠️</div>
+          <div class="action-info">
+            <h4>Maintenance Mode</h4>
+            <p>Restrict system access</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Create Modal -->
+<div class="modal-overlay" id="createModal">
+  <div class="modal">
+    <h3>➕ Create Admin Account</h3>
+    <div class="form-group"><label>Username</label><input type="text" id="newUsername" placeholder="e.g. jsmith_admin" /></div>
+    <div class="form-group"><label>Email</label><input type="email" id="newEmail" placeholder="admin@exam.com" /></div>
+    <div class="form-group"><label>Role</label>
+      <select id="newRole">
+        <option value="DEPT_HEAD">Department Head</option>
+        <option value="SUPER_ADMIN">Super Admin</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Department</label><input type="text" id="newDept" placeholder="e.g. Computer Science" /></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('createModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="createAdmin()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h3>✏️ Edit Admin Account</h3>
+    <input type="hidden" id="editId" />
+    <div class="form-group"><label>Username</label><input type="text" id="editUsername" /></div>
+    <div class="form-group"><label>Email</label><input type="email" id="editEmail" /></div>
+    <div class="form-group"><label>Department</label><input type="text" id="editDept" /></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('editModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="updateAdmin()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/js/admin.js"></script>
+<script>
+  const API = '/exam-system/admin';
+
+  async function loadAdmins() {
+    try {
+      const res  = await fetch(API + '?action=list');
+      const data = await res.json();
+      render(Array.isArray(data) ? data : demo());
+    } catch { render(demo()); }
+  }
+
+  function demo() {
+    return [
+      { admin_id:'1', username:'superadmin', email:'admin@exam.com',  role:'SUPER_ADMIN', department:'IT Operations',   is_active:true },
+      { admin_id:'2', username:'dr_smith',   email:'smith@exam.com',  role:'DEPT_HEAD',   department:'Computer Science', is_active:true },
+      { admin_id:'3', username:'mrs_chen',   email:'chen@exam.com',   role:'DEPT_HEAD',   department:'Mathematics',      is_active:false },
+    ];
+  }
+
+  function render(admins) {
+    document.getElementById('tableCount').textContent = admins.length + ' accounts';
+    document.getElementById('statTotal').textContent   = admins.length;
+    document.getElementById('statActive').textContent  = admins.filter(a=>a.is_active).length;
+    document.getElementById('statDept').textContent    = admins.filter(a=>a.role==='DEPT_HEAD').length;
+    document.getElementById('statRevoked').textContent = admins.filter(a=>!a.is_active).length;
+
+    const tbody = document.getElementById('adminTableBody');
+    if (!admins.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:30px">No admins found</td></tr>';
+      return;
+    }
+    tbody.innerHTML = admins.map(a => `
+      <tr>
+        <td><strong>${a.username}</strong></td>
+        <td style="color:var(--muted)">${a.email}</td>
+        <td><span class="badge ${a.role==='SUPER_ADMIN'?'badge-blue':'badge-green'}">${a.role}</span></td>
+        <td>${a.department||'—'}</td>
+        <td>
+          <span class="status-dot ${a.is_active?'dot-green':'dot-gray'}"></span>
+          ${a.is_active?'Active':'Revoked'}
+        </td>
+        <td>
+          <button class="btn btn-outline btn-sm" onclick="openEdit('${a.admin_id}','${a.username}','${a.email}','${a.department||''}')">Edit</button>
+          <button class="btn btn-outline btn-sm" onclick="toggleAccess('${a.admin_id}',${!a.is_active})" style="margin:0 4px">${a.is_active?'Revoke':'Restore'}</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteAdmin('${a.admin_id}','${a.username}')">Delete</button>
+        </td>
+      </tr>`).join('');
+  }
+
+  async function createAdmin() {
+    const p = new URLSearchParams({action:'create',username:document.getElementById('newUsername').value,email:document.getElementById('newEmail').value,role:document.getElementById('newRole').value,department:document.getElementById('newDept').value});
+    try {
+      const res = await fetch(API+'?'+p,{method:'POST'});
+      const d   = await res.json();
+      if(d.success){toast('Admin created!','success');closeModal('createModal');loadAdmins();}
+      else toast(d.error||'Failed','error');
+    } catch { toast('Server error','error'); }
+  }
+
+  function openEdit(id,username,email,dept) {
+    document.getElementById('editId').value=id;
+    document.getElementById('editUsername').value=username;
+    document.getElementById('editEmail').value=email;
+    document.getElementById('editDept').value=dept;
+    openModal('editModal');
+  }
+
+  async function updateAdmin() {
+    const id=document.getElementById('editId').value;
+    const p=new URLSearchParams({action:'update',id,username:document.getElementById('editUsername').value,email:document.getElementById('editEmail').value,department:document.getElementById('editDept').value});
+    try {
+      const res=await fetch(API+'?'+p,{method:'POST'});
+      const d=await res.json();
+      if(d.success){toast('Updated!','success');closeModal('editModal');loadAdmins();}
+      else toast(d.error||'Failed','error');
+    } catch { toast('Server error','error'); }
+  }
+
+  async function deleteAdmin(id,username) {
+    if(!confirm(`Delete admin "${username}"?`)) return;
+    try {
+      const res=await fetch(API+`?action=delete&id=${id}`,{method:'POST'});
+      const d=await res.json();
+      if(d.success){toast('Deleted','success');loadAdmins();}
+      else toast(d.error||'Failed','error');
+    } catch { toast('Server error','error'); }
+  }
+
+  async function toggleAccess(id,active) {
+    if(!confirm(`${active?'Restore':'Revoke'} access?`)) return;
+    try {
+      const res=await fetch(API+`?action=toggle&id=${id}&active=${active}`,{method:'POST'});
+      const d=await res.json();
+      if(d.success){toast(active?'Access restored':'Access revoked','success');loadAdmins();}
+      else toast(d.error||'Failed','error');
+    } catch { toast('Server error','error'); }
+  }
+
+  async function confirmPublish() {
+    if(!confirm('Publish ALL exam results system-wide?')) return;
+    try {
+      const res=await fetch(API+'?action=publishResults',{method:'POST'});
+      const d=await res.json();
+      toast(d.success?'All results published!':d.error,d.success?'success':'error');
+    } catch { toast('Server error','error'); }
+  }
+
+  async function confirmShutdown() {
+    if(!confirm('Activate MAINTENANCE MODE? Users will be restricted.')) return;
+    try {
+      const res=await fetch(API+'?action=shutdown',{method:'POST'});
+      const d=await res.json();
+      toast(d.success?'Maintenance mode ON':d.error,d.success?'success':'error');
+    } catch { toast('Server error','error'); }
+  }
+
+  function openModal(id)  { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  function toast(msg, type='') {
+    const t=document.createElement('div');
+    t.className='toast '+type; t.textContent=msg;
+    document.body.appendChild(t);
+    setTimeout(()=>t.remove(),3000);
+  }
+
+  loadAdmins();
+</script>
+</body>
+</html>
