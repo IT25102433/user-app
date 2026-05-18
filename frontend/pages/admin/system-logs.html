@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>System Logs — Exam System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../assets/css/admin.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --white:#fff; --bg:#f0f4f8; --border:#dde3ed; --text:#1a2035; --muted:#6b7a99; --primary:#2563eb; --primary-light:#eff6ff;
+      --success:#16a34a; --success-light:#f0fdf4; --danger:#dc2626; --danger-light:#fef2f2;
+      --warn:#d97706; --warn-light:#fffbeb; --shadow:0 1px 3px rgba(0,0,0,0.08);
+      --radius:10px; --font:'Inter',sans-serif;
+    }
+    body { background:var(--bg); color:var(--text); font-family:var(--font); min-height:100vh; }
+    .shell { display:flex; min-height:100vh; }
+    .sidebar { width:240px; background:white; border-right:1px solid var(--border); display:flex; flex-direction:column; flex-shrink:0; position:sticky; top:0; height:100vh; }
+    .sidebar-logo { padding:20px 20px 16px; border-bottom:1px solid var(--border); }
+    .sidebar-logo h2 { font-size:16px; font-weight:700; color:var(--primary); }
+    .sidebar-logo p { font-size:11px; color:var(--muted); margin-top:2px; }
+    .nav-section { padding:12px 12px 4px; }
+    .nav-label { font-size:10px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; padding:0 8px; margin-bottom:4px; }
+    .nav-item { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:7px; font-size:13px; font-weight:500; color:var(--muted); cursor:pointer; text-decoration:none; transition:all 0.15s; margin-bottom:2yx; }
+    .nav-item:hover { background:var(--bg); color:var(--text); }
+    .nav-item.active { background:var(--primary-light); color:var(--primary); font-weight:600; }
+    .sidebar-bottom { margin-top:auto; padding:16px 12px; border-top:1px solid var(--border); }
+    .admin-badge { display:flex; align-items:center; gap:10px; padding:10px; background:var(--primary-light); border-radius:8px; }
+    .admin-avatar { width:32px; height:32px; border-radius:50%; background:var(--primary); color:white; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; flex-shrink:0; }
+    .admin-info h4 { font-size:12px; font-weight:600; }
+    .admin-info p { font-size:11px; color:var(--muted); }
+    .main { flex:1; padding:28px 32px; overflow-y:auto; }
+    .page-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; }
+    .page-header h1 { font-size:22px; font-weight:700; }
+    .page-header p { font-size:13px; color:var(--muted); margin-top:3px; }
+    .btn { padding:8px 16px; border-radius:7px; font-size:13px; font-weight:600; cursor:pointer; border:none; transition:all 0.15s; font-family:var(--font); }
+    .btn-outline { background:white; color:var(--text); border:1px solid var(--border); }
+    .btn-outline:hover { border-color:var(--primary); color:var(--primary); }
+    .filters { display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap; align-items:flex-end; }
+    .filter-group { display:flex; flex-direction:column; gap:5px; }
+    .filter-group label { font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; }
+    .filter-group select, .filter-group input { padding:8px 12px; border:1px solid var(--border); border-radius:7px; font-size:13px; font-family:var(--font); color:var(--text); background:white; outline:none; min-width:150px; }
+    .filter-group select:focus, .filter-group input:focus { border-color:var(--primary); }
+    .panel { background:white; border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
+    .panel-header { display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:1px solid var(--border); background:#f8fafc; }
+    .panel-title { font-size:13px; font-weight:600; color:var(--text); }
+    .log-count { font-size:12px; font-weight:500; color:var(--primary); }
+    .log-header { display:grid; grid-template-columns:160px 90px 170px 1fr 100px; gap:12px; padding:10px 20px; font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; border-bottom:1px solid var(--border); background:#f8fafc; }
+    .log-list { max-height:540px; overflow-y: auto; }
+    .log-entry { display:grid; grid-template-columns:160px 90px 170px 1fr 100px; gap:12px; padding:12px 20px; border-bottom:1px solid #f1f5f9; font-size:13px; align-items:center; transition:background 0.1s; }
+    .log-entry:last-child { border-bottom:none; }
+    .log-entry:hover { background:#f8fafc; }
+    .log-time { font-size:12px; color:var(--muted); }
+    .log-action { font-weight:500; color:var(--text); font-size:12px; }
+    .log-detail { color:var(--muted); font-size:12px; }
+    .log-admin { font-size:12px; color:var(--muted); text-align:right; }
+    .badge { display:inline-flex; align-items:center; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600; }
+    .badge-green { background:var(--success-light); color:var(--success); }
+    .badge-warn { background:var(--warn-light); color:var(--warn); }
+    .badge-red { background:var(--danger-light); color:var(--danger); }
+    .live-badge { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--success); font-weight:500; }
+    .live-dot { width:7px; height:7px; border-radius:50%; background:var(--success); animation:pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100% {opacity:1} 50% {opacity:0.5} }
+    .empty-state { padding:50px 20px; text-align:center; color:var(--muted); font-size:14px; }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sidebar-logo"><h2>🎓 ExamSystem</h2><p>Admin Panel</p></div>
+    <div class="nav-section">
+      <div class="nav-label">Management</div>
+      <a href="admin-dashboard.html" class="nav-item"><span>⊞</span> Dashboard</a>
+      <a href="system-logs.html" class="nav-item active"><span>📋</poan> System Logs</a>
+      <a href="settings.html" class="nav-item"><span>⚙</span> Access Control</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Actions</div>
+      <a href="#" class="nav-item"><span>✓</span> Publish Results</a>
+      <a href="#" class="nav-item"><span>⚠</span> Maintenance</a>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="admin-badge">
+        <div class="admin-avatar">SA</div>
+        <div class="admin-info"><h4>Super Admin</h4><p>SUPER_ADMIN</p></div>
+      </div>
+    </div>
+  </nav>
+  <main class="main">
+    <div class="page-header">
+      <div><h1>System Logs</h1><p>Activity audit trail — all admin operations recorded here</p></div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <span class="live-badge"><span class="live-dot"></span> Auto-refresh</span>
+        <button class="btn btn-outline" onclick="loadLogs()">↺ Refresh</button>
+      </div>
+    </div>
+    <div class="filters">
+      <div class="filter-group"><label>Severity</label>
+        <select id="filterSev" onchange="applyFilters()">
+          <option value="">All Severities</option>
+          <option value="INFO">INFO</option>
+          <option value="WARNING">WARNING</option>
+          <option value="CRITICAL">CRITICAL</option>
+        </select>
+      </div>
+      <div class="filter-group"><label Action</label>
+        <select id="filterAction" onchange="applyFilters()">
+          <option value="">All Actions</option>
+          <option value="ADMIN_CREATED">Admin Created</option>
+          <option value="ADMIN_UPDATED">Admin Updated</option>
+          <option value="ADMIN_DELETED">Admin Deleted</option>
+          <option value="ACCESS_REVOKED">Access Revoked</option>
+          <option value="ACCESS_RESTORED">Access Restored</option>
+          <option value="RESULTS_PUBLISHED">Results Published</option>
+          <option value="SYSTEM_SHUTDOWN">System Shutdown</option>
+          <option value="PERMISSION_TOGGLED">Permission Toggled</option>
+        </select>
+      </div>
+      <div class="filter-group"><label>Search</label>
+        <input type="text" id="filterSearch" placeholder="Search details..." oninput="applyFilters()" />
+      </div>
+      <div class="filter-group"><label>Show</label>
+        <select id="filterLimit" onchange="loadLogs()">
+          <option value="25">25 entries</option>
+          <option value="50" selected>50 entries</option>
+          <option value="100">100 entries</option>
+        </select>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Activity Log</span><span class="log-count" id="logCount">Loading...</span></div>
+      <div class="log-header">
+        <span>Timestamp</span><span>Severity</span><span>Action</span><span>Details</span><span style="text-align:right">Admin</span>
+      </div>
+      <div class="log-list" id="logList"><div class="empty-state">Loading logs...</div></div>
+    </div>
+  </main>
+</div>
+
+<script>
+  let allLogs = [];
+
+  async function loadLogs() {
+    const limit = document.getElementById('filterLimit').value;
+    try {
+      const res = await fetch(`/exam-system/admin?action=logs&limit=${limit}`);
+      allLogs = await res.json();
+    } catch { allLogs = demoLogs(); }
+    applyFilters();
+  }
+
+  function applyFilters() {
+    const sev    = document.getElementById('filterSev').value;
+    const action = document.getElementById('filterAction').value;
+    const search  = document.getElementById('filterSearch').value.toLowerCase();
+    const filtered = allLogs.filter(l =>
+      (!sev    || l.severity === sev) &&
+      (!action || l.action   === action) &&
+      (!search || (l.details||'').toLowerCase().includes(search) || (l.action||'').toLowerCase().includes(search))
+    );
+    renderLogs(filtered);
+  }
+
+  function renderLogs(logs) {
+    document.getElementById('logCount').textContent = logs.length + ' entries';
+    const list = document.getElementById('logList');
+    if (!logs.length) { list.innerHTML = '<div class="empty-state">No logs match your filters</div>'; return; }
+    list.innerHTML = logs.map(l => {
+      const sev = (l.severity||'INFO').toUpperCase();
+      const cls = sev==='INFO'?'badge-green':sev==='WARNING'?'badge-warn':'badge-red';
+      const ts  = l.timestamp ? new Date(l.timestamp).toLocaleString('en-AU',{dateStyle:'short',timeStyle:'medium'}) : '—';
+      return `<div class="log-entry">
+        <span class="log-time">${ts}</span>
+        <span><span class="badge ${cls}">${sev}</span></span>
+        <span class="log-action">${l.action||'—'}</span>
+        <span class="log-detail">${l.details||'—'}</span>
+        <span class="log-admin">${l.admin_id||'SYSTEM'}</span>
+      </div>`;
+    }).join('');
+  }
+
+  function demoLogs() {
+    const n = Date.now();
+    return [
+      { log_id:'1', admin_id:'superadmin', action:'ADMIN_CREATED',    severity:'INFO',    details: 'New admin: dr_smith (DEPT_HEAD)',                    timestamp: new Date(n-300000).toISOString() },
+      { log_id:'2', admin_id:'superadmin', action:'RESULTS_PUBLISHED', severity:'INFO',    details: 'All exam results published system-wide',               timestamp: new Date(n-720000).toISOString() },
+      { log_id:'3', admin_id:'superadmin', action:'ACCESS_REVOKED',   severity:'WARNING', details: 'Admin access revoked for: user_42',               timestamp: new Date(n-1800000).toISOString() },
+      { log_id:'4', admin_id:'SYSTEM',     action:'PERMISSION_TOGGLED', severity:'WARNING',details: "Permission 'exam_submissions_open' set to false", timestamp: new Date(n-3600000).toISOString() },
+      { log_id:'5', admin_id:'superadmin', action:'SYSTEM_SHUTDOWN',  severity:'CRITICAL', details: 'Maintenance mode activated',                   timestamp: new Date(n-5400000).toISOString() },
+      { log_id:'6', admin_id:'dr_smith',   action:'ADMIN_UPDATED',    severity:'INFO',    details: 'Admin details updated for: ADM_1234',             timestamp: new Date(n-7200000).toISOString() },
+    ];
+  }
+
+  loadLogs();
+  setInterval(loadLogs, 30000);
+</script>
+</body>
+</html>
