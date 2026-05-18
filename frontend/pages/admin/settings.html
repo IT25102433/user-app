@@ -1,0 +1,44 @@
+  async function togglePerm(key, enabled) {
+    const lbl = document.getElementById('lbl-' + key);
+    if (lbl) { lbl.textContent = enabled ? 'ON' : 'OFF'; lbl.className = 'toggle-label ' + (enabled ? 'on' : 'off'); }
+    settings[key] = enabled;
+    updateStatus();
+    try {
+      const p = new URLSearchParams({action:'togglePermission',permission:key,enabled:String(enabled)});
+      const res = await fetch('/exam-system/admin?' + p, {method:'POST'});
+      const d   = await res.json();
+      toast(d.success ? (enabled?'Enabled: ':'Disabled: ') + key.replace(/_/g,' ') : d.error, d.success?'success':'error');
+    } catch { toast('Could not connect','error'); }
+  }
+
+  async function publishResults() {
+    if (!confirm('Publish ALL exam results system-wide?')) return;
+    try {
+      const res = await fetch('/exam-system/admin?action=publishResults', {method:'POST'});
+      const d   = await res.json();
+      toast(d.success ? '✓ All results published' : d.error, d.success?'success':'error');
+    } catch { toast('Server error','error'); }
+  }
+async function activateMaintenance() {
+    if (!confirm('Activate MAINTENANCE MODE? Non-admin users will be locked out.')) return;
+    const tog = document.getElementById('tog-maintenance_mode');
+    if (tog) tog.checked = true;
+    await togglePerm('maintenance_mode', true);
+  }
+
+  function revokeAll() {
+    if (!confirm('Revoke ALL active sessions? All users will be logged out.')) return;
+    toast('All sessions revoked','success');
+  }
+
+  function toast(msg, type='') {
+    const t = document.createElement('div');
+    t.className = 'toast ' + type; t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+  }
+
+  loadSettings();
+</script>
+</body>
+</html>
