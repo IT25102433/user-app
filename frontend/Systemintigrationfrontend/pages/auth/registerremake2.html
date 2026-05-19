@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Page</title>
+    <style>
+        /* CSS ටික කෙලින්ම file එක ඇතුළටම දැම්මා, එතකොට path අවුල් යන්නේ නැහැ */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .register-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 320px;
+        }
+        .register-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 10px;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        .btn-submit:hover {
+            background-color: #357abd;
+        }
+        #message {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="register-container">
+        <h2>Register Page</h2>
+        
+        <div class="input-group">
+            <input type="text" id="username" placeholder="Username">
+        </div>
+        <div class="input-group">
+            <input type="email" id="email" placeholder="Email">
+        </div>
+        <div class="input-group">
+            <input type="password" id="password" placeholder="Password">
+        </div>
+        
+        <button type="button" id="btnRegister" class="btn-submit">Register</button>
+        
+        <p id="message"></p>
+    </div>
+
+    <script>
+        document.getElementById('btnRegister').addEventListener('click', function() {
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const messageText = document.getElementById('message');
+
+            const data = {
+                username: username,
+                email: email,
+                password: password
+            };
+
+            // Java Backend (Port 8080) එකට Data යැවීම
+            fetch('http://localhost:8080/api/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.text())
+            .then(result => {
+                messageText.style.color = "green";
+                messageText.innerText = result; // Backend එකෙන් එන සාර්ථක පණිවිඩය පෙන්වයි
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                messageText.style.color = "red";
+                messageText.innerText = "Backend එකට සම්බන්ධ වෙන්න බැරි වුණා! (IntelliJ එකේ Run කරලාද බලන්න)";
+            });
+        });
+    </script>
+</body>
+</html>
