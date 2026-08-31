@@ -1,0 +1,6 @@
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+body { background-color: #f4f7f6; color: #333; line-height: 1.6; }
+.container { width: 80%; max-width: 1000px; margin: auto; padding: 20px; }
+.text-center { text-align: center; }
+.button, button { display: inline-block; background: #0056b3; color: #fff; padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; text-decoration: none;}
+.button:hover, button:hover { background: #004494; }
